@@ -1,0 +1,36 @@
+version: 2.1
+orbs:
+  node: circleci/node@5.1.0
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:18.15.0
+    parallelism: 6
+    steps:
+      - checkout
+      - run:
+          name: Check Node Version
+          command: node --version
+      - run:
+          name: Check test folder file
+          working_directory: ./test
+          command: ls -a
+      - node/install-packages:
+          app-dir: ./
+          cache-path: ./node_modules
+          override-ci-command: npm i
+      - run:
+          command: npm run test
+          working_directory: ./
+          name: Unit Testing
+      - run:
+          command: npm run test:e2e
+          working_directory: ./
+      - store_test_results:
+          path: ./coverage
+      - store_artifacts:
+          path: ./coverage
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test
