@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { UrlService } from './url.service';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Url } from './url.entity';
 import { UrlController } from './url.controller';
+import { Url } from './url.entity';
+import { UrlRepository } from './url.repository';
+import { UrlService } from './url.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Url])],
-  providers: [UrlService],
-  controllers: [UrlController]
+  imports: [ConfigModule, TypeOrmModule.forFeature([Url])],
+  providers: [UrlRepository, UrlService],
+  controllers: [UrlRepository, UrlController]
 })
 export class UrlModule {}

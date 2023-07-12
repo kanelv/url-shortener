@@ -5,7 +5,8 @@ import {
   Param,
   Post,
   Res,
-  Logger
+  Logger,
+  Request
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { ShortenURLDto } from './dto/url.dto';
@@ -18,10 +19,16 @@ export class UrlController {
 
   @Post('shorten')
   shortenUrl(
+    @Request() req,
     @Body()
     url: ShortenURLDto
   ) {
-    return this.urlService.shortenUrl(url);
+    this.logger.debug(`shortenUrl`);
+
+    const user = req;
+    this.logger.debug(`shortenUrl::user: ${user}`);
+
+    return this.urlService.shortenUrl(user, url);
   }
 
   @Get('/:code')
@@ -32,8 +39,8 @@ export class UrlController {
   ) {
     this.logger.debug('code', code);
 
-    const url = await this.urlService.redirect(code);
+    const originalUrl = await this.urlService.redirect(code);
 
-    return res.redirect(url.longUrl);
+    return res.redirect(originalUrl);
   }
 }

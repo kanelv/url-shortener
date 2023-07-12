@@ -26,6 +26,11 @@ export class User {
   @Column()
   password: string;
 
+  @Column({
+    default: true
+  })
+  public isActive: boolean;
+
   @OneToMany(() => Url, (url: Url) => url.user, { cascade: true })
   urls?: Url[];
 
