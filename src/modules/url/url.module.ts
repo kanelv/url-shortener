@@ -9,6 +9,6 @@ import { UrlService } from './url.service';
 @Module({
   imports: [ConfigModule, TypeOrmModule.forFeature([Url])],
   providers: [UrlRepository, UrlService],
-  controllers: [UrlRepository, UrlController]
+  controllers: [UrlController]
 })
 export class UrlModule {}

@@ -17,12 +17,6 @@ import { AuthGuard } from '../../common/auth.guard';
       global: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        console.log(
-          `path.resolve('', configService.get('JWT_PRIVATE_KEY')): ${path.resolve(
-            '',
-            configService.get('JWT_PRIVATE_KEY')
-          )}`
-        );
         const options: JwtModuleOptions = {
           privateKey: fs.readFileSync(
             path.resolve('', configService.get('JWT_PRIVATE_KEY'))
@@ -31,7 +25,7 @@ import { AuthGuard } from '../../common/auth.guard';
             path.resolve('', configService.get('JWT_PUBLIC_KEY'))
           ),
           signOptions: {
-            expiresIn: '24h',
+            expiresIn: configService.get('EXPIRES_IN', '24h'),
             issuer: 'AuthService',
             algorithm: 'RS256'
           }
