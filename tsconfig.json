@@ -20,6 +20,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "preserveConstEnums": true,
+    "allowJs": true,
     "moduleResolution": "node",
     "lib": ["es2017"],
     "rootDir": "./",
