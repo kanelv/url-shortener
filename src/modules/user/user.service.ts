@@ -43,6 +43,10 @@ export class UserService {
     return insertResult.identifiers[0];
   }
 
+  async findMany(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
   async findOneById(id: number): Promise<OmitProperties<User, 'password'>> {
     this.logger.debug(`findOneById::id: ${id}`);
 

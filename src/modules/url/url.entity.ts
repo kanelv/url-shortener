@@ -31,7 +31,7 @@ export class Url {
   @JoinColumn({
     name: 'user_id'
   })
-  public user: User;
+  public user?: User;
 
   @CreateDateColumn()
   public createdAt: Date;
