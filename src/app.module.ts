@@ -1,14 +1,12 @@
+import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Url } from './modules/url/url.entity';
+import { DatabaseModule } from './core/database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { UrlModule } from './modules/url/url.module';
 import { UserModule } from './modules/user/user.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { User } from './modules/user/user.entity';
-import * as Joi from '@hapi/joi';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -26,12 +24,7 @@ import { ConfigModule } from '@nestjs/config';
         TOKEN_EXPIRES_IN: Joi.string().required()
       })
     }),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'URL.sqlite',
-      entities: [Url, User],
-      synchronize: true
-    }),
+    DatabaseModule,
     UrlModule,
     UserModule,
     AuthModule
