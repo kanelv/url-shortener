@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "url-shortener",
+      "Group": "KS",
+      "Port": 5432,
+      "Username": "postgres",
+      "Host": "url-shortener_db",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}
