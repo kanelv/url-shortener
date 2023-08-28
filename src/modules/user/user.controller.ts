@@ -1,29 +1,30 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
   Param,
-  Post,
-  Request
+  Patch,
+  Post
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { FindOneByIdDto } from '../../common/find-one-by-id.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
+import { Public } from '../../common/allow-public-request';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
   readonly logger = new Logger(UserController.name);
 
+  @Public()
   @Post()
-  async create(@Request() req, @Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
     try {
       this.logger.debug(`shortenUrl`);
-
-      const user = req;
-      this.logger.debug(`shortenUrl::user: ${user}`);
 
       return this.userService.create(createUserDto);
     } catch (error) {
@@ -38,26 +39,28 @@ export class UserController {
     try {
       this.logger.debug('findMany');
 
-      const user = await this.userService.findMany();
+      const users = await this.userService.findMany();
 
       return {
-        user
+        status: true,
+        users
       };
     } catch (error) {
-      this.logger.error('findOne::error', error);
+      this.logger.error('findMany::error', error);
 
       throw error;
     }
   }
 
   @Get(':id')
-  async findOne(@Param() { id }: { id: number }) {
+  async findOne(@Param() { id }: FindOneByIdDto) {
     try {
       this.logger.debug('findOne::id', id);
 
       const user = await this.userService.findOneById(id);
 
       return {
+        status: true,
         user
       };
     } catch (error) {
@@ -67,21 +70,38 @@ export class UserController {
     }
   }
 
-  @Get(':id')
+  @Patch(':id')
   async update(
-    @Param() { id }: { id: number },
+    @Param() { id }: FindOneByIdDto,
     @Body() updateUserDto: UpdateUserDto
   ) {
     try {
       this.logger.debug('findOne::id', id);
 
-      const user = await this.userService.update(id, updateUserDto);
+      await this.userService.update(id, updateUserDto);
 
       return {
-        user
+        status: true
       };
     } catch (error) {
-      this.logger.error('findOne::error', error);
+      this.logger.error('update::error', error);
+
+      throw error;
+    }
+  }
+
+  @Delete(':id')
+  async delete(@Param() { id }: FindOneByIdDto) {
+    try {
+      this.logger.debug('findOne::id', id);
+
+      await this.userService.delete(id);
+
+      return {
+        status: true
+      };
+    } catch (error) {
+      this.logger.error('delete::error', error);
 
       throw error;
     }

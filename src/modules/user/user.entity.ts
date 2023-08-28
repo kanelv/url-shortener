@@ -16,12 +16,12 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  userName: string;
+
   @Column({
     nullable: true
   })
-  userName: string;
-
-  @Column()
   email: string;
 
   @Column()

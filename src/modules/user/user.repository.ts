@@ -2,8 +2,12 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { UserRepositoryInterface } from './user.repository.interface';
 
-export class UserRepository extends Repository<User> {
+export class UserRepository
+  extends Repository<User>
+  implements UserRepositoryInterface<User>
+{
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>

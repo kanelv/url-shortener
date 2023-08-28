@@ -23,12 +23,17 @@ export class UserService {
       `create::createUserDto: ${JSON.stringify(createUserDto, null, 2)}`
     );
 
-    const { password, ...remainUserDetail } = createUserDto;
+    const { password, userName } = createUserDto;
+
+    const exist = await this.userRepository.exist({ where: { userName } });
+    if (exist) {
+      throw new Error(`Username ${userName} is already exist`);
+    }
 
     const encryptedPassword = hashSync(password, 10);
 
     const newUser = this.userRepository.create({
-      ...remainUserDetail,
+      userName,
       password: encryptedPassword
     });
     this.logger.debug(`create::newUser: ${JSON.stringify(newUser, null, 2)}`);
@@ -43,27 +48,89 @@ export class UserService {
     return insertResult.identifiers[0];
   }
 
-  async findMany(): Promise<User[]> {
-    return this.userRepository.find();
+  async findMany(): Promise<OmitProperties<User, 'password'>[]> {
+    const users = await this.userRepository.find();
+    this.logger.debug(`findMany::users: ${JSON.stringify(users, null, 2)}`);
+
+    const handleUsers = users.map((user) => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+    this.logger.debug(
+      `findMany::handleUsers: ${JSON.stringify(handleUsers, null, 2)}`
+    );
+
+    return handleUsers;
   }
 
+  /**
+   * Find one user by id
+   * @param id
+   * @returns
+   */
   async findOneById(id: number): Promise<OmitProperties<User, 'password'>> {
     this.logger.debug(`findOneById::id: ${id}`);
 
-    const user: User = await this.userRepository.findOneById(id);
-    this.logger.debug(`findOneById::user: ${JSON.stringify(user, null, 2)}`);
+    const passiveUser: User = await this.userRepository.findOneById(id);
+    this.logger.debug(
+      `findOneById::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
+    );
 
-    const { password, ...result } = user;
+    if (!passiveUser) {
+      throw new Error(`User ${id} is not exist`);
+    }
+
+    const { password, ...result } = passiveUser;
 
     return result;
   }
 
+  /**
+   *
+   * @param userName
+   * @returns
+   */
   async findOneByUserName(userName: string): Promise<User> {
-    return this.userRepository.findOneByUserName(userName);
+    this.logger.debug(`findOneByUserName::userName: ${userName}`);
+
+    const passiveUser: User = await this.userRepository.findOneByUserName(
+      userName
+    );
+
+    this.logger.debug(
+      `findOneById::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
+    );
+
+    if (!passiveUser) {
+      throw new Error(`User ${userName} is not exist`);
+    }
+
+    return passiveUser;
   }
 
-  async findOneByEmail(email: string): Promise<User> {
-    return this.userRepository.findOneByEmail(email);
+  /**
+   *
+   * @param email
+   * @returns
+   */
+  async findOneByEmail(
+    email: string
+  ): Promise<OmitProperties<User, 'password'>> {
+    this.logger.debug(`findOneByUserName::userName: ${email}`);
+
+    const passiveUser: User = await this.userRepository.findOneByEmail(email);
+
+    this.logger.debug(
+      `findOneById::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
+    );
+
+    if (!passiveUser) {
+      throw new Error(`User ${email} is not exist`);
+    }
+
+    const { password, ...result } = passiveUser;
+
+    return result;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<boolean> {

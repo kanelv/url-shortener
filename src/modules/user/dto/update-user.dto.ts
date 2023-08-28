@@ -1,7 +1,24 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import { Role } from '../../../common/role.enum';
 
 export class UpdateUserDto {
-  @IsNotEmpty()
   @IsString()
+  @IsOptional()
+  readonly userName: string;
+
+  @IsString()
+  @IsOptional()
+  readonly email: string;
+
+  @IsString()
+  @IsOptional()
   readonly password: string;
+
+  @IsEnum(Role)
+  @IsOptional()
+  readonly role: Role;
+
+  @IsBoolean()
+  @IsOptional()
+  readonly isActive: boolean;
 }
