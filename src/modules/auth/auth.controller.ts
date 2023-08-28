@@ -1,11 +1,5 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Post
-} from '@nestjs/common';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Public } from '../../common/allow-public-request';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
 
@@ -15,7 +9,7 @@ export class AuthController {
 
   private readonly logger = new Logger(AuthService.name);
 
-  @HttpCode(HttpStatus.OK)
+  @Public()
   @Post('login')
   async signIn(@Body() signInDto: SignInDto) {
     try {

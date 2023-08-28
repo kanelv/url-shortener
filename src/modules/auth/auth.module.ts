@@ -25,7 +25,7 @@ import { AuthGuard } from '../../common/auth.guard';
             path.resolve('', configService.get('JWT_PUBLIC_KEY'))
           ),
           signOptions: {
-            expiresIn: configService.get('EXPIRES_IN', '24h'),
+            expiresIn: configService.get('TOKEN_EXPIRES_IN', '24h'),
             issuer: 'AuthService',
             algorithm: 'RS256'
           }
