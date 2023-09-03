@@ -3,11 +3,10 @@
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
-    "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -19,13 +18,15 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "noLib": false,
     "preserveConstEnums": true,
     "allowJs": true,
     "moduleResolution": "node",
-    "lib": ["es2017"],
+    "lib": ["es2022"],
     "rootDir": "./",
     "paths": {
-      "*": ["*", "./src/*"]
+      "@/*": ["*", "./src/*"],
+      "@/test/*": ["../test/*"]
     }
   }
 }

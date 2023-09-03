@@ -7,7 +7,7 @@ import {
 import { isURL } from 'class-validator';
 import { nanoid } from 'nanoid';
 import { User } from '../user/user.entity';
-import { ShortenURLDto } from './dto/url.dto';
+import { ShortenURLDto } from './dto/shorten-url.dto';
 import { UrlRepository } from './url.repository';
 import { ConfigService } from '@nestjs/config';
 

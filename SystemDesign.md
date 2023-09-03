@@ -16,9 +16,9 @@
 - Shortened links should not be predictable.
 - The system should be scalable and efficient
 
-### 2.3 Extended requirments
+### 2.3 Extended requirements
 - prevent abuse of services
-- record analytics and metric for redirections
+- record analytics and metric for re-directions
 
 ## 3. Estimation and Constraints
 
