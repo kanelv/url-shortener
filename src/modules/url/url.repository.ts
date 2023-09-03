@@ -2,8 +2,13 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from './url.entity';
+import { UrlRepositoryInterface } from './url.repository.interface';
+import { User } from '../user/user.entity';
 
-export class UrlRepository extends Repository<Url> {
+export class UrlRepository
+  extends Repository<Url>
+  implements UrlRepositoryInterface<Url>
+{
   constructor(
     @InjectRepository(Url)
     private urlRepository: Repository<Url>

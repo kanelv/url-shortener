@@ -5,6 +5,7 @@
     "editor.formatOnSave": true
   },
   "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "single",
   "prettier.prettierPath": "./node_modules/prettier",
   "prettier.configPath": "./.prettierrc"
 }
