@@ -8,11 +8,11 @@ import {
   Patch,
   Post
 } from '@nestjs/common';
-import { FindOneByIdDto } from '../../common/find-one-by-id.dto';
+import { Public } from '../../common/allow-public-request';
+import { FindOneByIdDto } from '../../infra/http/dtos/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
-import { Public } from '../../common/allow-public-request';
 
 @Controller('users')
 export class UserController {

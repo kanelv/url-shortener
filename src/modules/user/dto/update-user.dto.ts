@@ -1,5 +1,5 @@
 import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
-import { Role } from '../../../common/role.enum';
+import { Role } from '../../../domain/entities/enums';
 
 export class UpdateUserDto {
   @IsString()
