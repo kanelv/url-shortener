@@ -3,10 +3,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './core/database/database.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { UrlModule } from './modules/url/url.module';
-import { UserModule } from './modules/user/user.module';
+import { DatabaseModule } from './infra/database/database.module';
+import { ControllersModule } from './infra/http/controllers/controllers.module';
+import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
+import { RepositoriesModule } from './infra/database/repositories/repositories.module';
 
 @Module({
   imports: [
@@ -25,9 +25,9 @@ import { UserModule } from './modules/user/user.module';
       })
     }),
     DatabaseModule,
-    UrlModule,
-    UserModule,
-    AuthModule
+    RepositoriesModule,
+    ControllersModule,
+    BcryptModule
   ],
   controllers: [AppController],
   providers: [AppService]

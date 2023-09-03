@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { Public } from '../../common/allow-public-request';
 import { AuthGuard } from '../../common/auth.guard';
-import { ShortenURLDto } from './dto/url.dto';
+import { ShortenURLDto } from './dto/shorten-url.dto';
 import { UrlService } from './url.service';
 
-@Controller('url')
+@Controller('urls')
 @UseGuards(AuthGuard)
 export class UrlController {
   constructor(private urlService: UrlService) {}
