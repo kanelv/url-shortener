@@ -1,12 +1,10 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { DatabaseModule } from './infra/database/database.module';
+import { RepositoriesModule } from './infra/database/repositories/repositories.module';
 import { ControllersModule } from './infra/http/controllers/controllers.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
-import { RepositoriesModule } from './infra/database/repositories/repositories.module';
 
 @Module({
   imports: [
@@ -28,8 +26,6 @@ import { RepositoriesModule } from './infra/database/repositories/repositories.m
     RepositoriesModule,
     ControllersModule,
     BcryptModule
-  ],
-  controllers: [AppController],
-  providers: [AppService]
+  ]
 })
 export class AppModule {}
