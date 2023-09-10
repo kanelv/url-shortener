@@ -1,6 +1,9 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
+import fs from 'fs';
+import path from 'path';
 import { DatabaseModule } from './infra/database/database.module';
 import { ControllersModule } from './infra/http/controllers/controllers.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
@@ -20,6 +23,33 @@ import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
         GUESS_EXPIRES_IN: Joi.string().required(),
         TOKEN_EXPIRES_IN: Joi.string().required()
       })
+    }),
+    JwtModule.registerAsync({
+      global: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const options: JwtModuleOptions = {
+          privateKey: fs.readFileSync(
+            path.resolve(
+              '',
+              configService.get('JWT_PRIVATE_KEY', `src/certs/jwt/private.pem`)
+            )
+          ),
+          publicKey: fs.readFileSync(
+            path.resolve(
+              '',
+              configService.get('JWT_PUBLIC_KEY', `src/certs/jwt/public.pem`)
+            )
+          ),
+          signOptions: {
+            expiresIn: configService.get('TOKEN_EXPIRES_IN', '24h'),
+            issuer: 'AuthService',
+            algorithm: 'RS256'
+          }
+        };
+        return options;
+      },
+      inject: [ConfigService]
     }),
     DatabaseModule,
     ControllersModule,

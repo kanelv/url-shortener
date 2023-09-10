@@ -43,9 +43,11 @@ export class UserController {
   @Post()
   async signUp(@Body() signUpUserDto: SignUpUserDto) {
     try {
-      this.logger.debug(`signUp`);
+      this.logger.debug('signUp::signUpUserDto: ', signUpUserDto);
 
-      return this.signUpUserUseCase.execute(signUpUserDto);
+      const { userName, password } = signUpUserDto;
+
+      return this.signUpUserUseCase.execute(userName, password);
     } catch (error) {
       this.logger.error('create::error', error);
 

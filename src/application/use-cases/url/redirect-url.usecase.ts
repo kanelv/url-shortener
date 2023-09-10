@@ -7,8 +7,7 @@ export class RedirectUrlUseCase {
     const url = await this.urlRepository.findOneByUrlCode(urlCode);
     if (url) {
       return url.originalUrl;
-    }
-    {
+    } else {
       throw new Error('Resource Not Found');
     }
   }

@@ -19,7 +19,12 @@ export class AuthController {
     try {
       this.logger.debug('signIn::signInUserDto: ', signInUserDto);
 
-      const accessToken = await this.signInUserUseCase.execute(signInUserDto);
+      const { userName, password } = signInUserDto;
+
+      const accessToken = await this.signInUserUseCase.execute(
+        userName,
+        password
+      );
 
       return {
         accessToken

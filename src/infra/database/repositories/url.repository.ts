@@ -1,14 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  UnprocessableEntityException
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isURL } from 'class-validator';
-import { nanoid } from 'nanoid';
-import { Repository } from 'typeorm';
+import { InsertResult, Repository } from 'typeorm';
 import { IUrlRepository } from '../../../domain/contracts/repositories/url.repository.interface';
 import { Url } from '../entities/url.entity';
 
@@ -28,38 +21,36 @@ export class UrlRepository extends Repository<Url> implements IUrlRepository {
 
   private readonly logger = new Logger(UrlRepository.name);
 
-  async shortenUrl(userId: number, originalUrl: string): Promise<string> {
-    try {
-      //checks if originalUrl is a valid Url
-      if (!isURL(originalUrl)) {
-        throw new BadRequestException('String Must be a Valid Url');
-      }
+  async add(
+    userId: number,
+    originalUrl: string,
+    urlCode: string
+  ): Promise<any> {
+    //create a new url record
+    const newUrl = this.urlRepository.create({
+      urlCode,
+      originalUrl,
+      userId: userId
+    });
 
-      //check if the Url has already been shortened
-      let url = await this.findOneByOriginalUrl(originalUrl);
+    const insertResult: InsertResult = await this.urlRepository.insert(newUrl);
 
-      //return it if it exists
-      if (url)
-        return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${
-          url.urlCode
-        }`;
+    return insertResult.identifiers[0];
+  }
 
-      //if it doesn't exist, shorten it
-      const urlCode = nanoid(10);
+  async findAll(): Promise<any[]> {
+    const urls: Url[] = await this.urlRepository.find();
+    this.logger.debug(`findAll::urls: ${JSON.stringify(urls, null, 2)}`);
 
-      //add the new record to the database
-      url = this.urlRepository.create({
-        urlCode,
-        originalUrl,
-        userId: userId
-      });
-      this.urlRepository.save(url);
+    const handleUrls = urls.map((url) => {
+      const { user, ...urlWithoutPassword } = url;
+      return urlWithoutPassword;
+    });
+    this.logger.debug(
+      `findMany::handleUrls: ${JSON.stringify(handleUrls, null, 2)}`
+    );
 
-      return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${urlCode}`;
-    } catch (error) {
-      console.log(error);
-      throw new UnprocessableEntityException('Server Error');
-    }
+    return handleUrls;
   }
 
   async findOneById(id: number): Promise<Url> {

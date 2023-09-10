@@ -1,5 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
+  FindAllUrlUseCase,
+  FindOneUrlUseCase,
   RedirectUrlUseCase,
   ShortenUrlUseCase
 } from '../../application/use-cases/url';
@@ -15,6 +18,7 @@ import { RepositoriesModule } from '../database/repositories/repositories.module
 import { UrlRepository } from '../database/repositories/url.repository';
 import { UserRepository } from '../database/repositories/user.repository';
 import { BcryptModule } from '../services/bcrypt/bcrypt.module';
+import { BcryptService } from '../services/bcrypt/bcrypt.service';
 
 @Module({
   imports: [BcryptModule, RepositoriesModule]
@@ -31,22 +35,29 @@ export class UseCasesProxyModule {
   // Url
   static SHORTEN_URL_USECASES_PROXY = 'ShortenUrlUseCaseProxy';
   static REDIRECT_URL_USECASES_PROXY = 'RedirectUrlUseCaseProxy';
+  static FIND_ALL_URL_USECASE_PROXY = 'FindAllUrlUseCaseProxy';
+  static FIND_ONE_URL_USECASE_PROXY = 'FindOneUrlUseCaseProxy';
 
   static register(): DynamicModule {
     return {
       module: UseCasesProxyModule,
       providers: [
         {
-          inject: [UserRepository],
+          inject: [UserRepository, BcryptService],
           provide: UseCasesProxyModule.SIGN_UP_USER_USECASE_PROXY,
-          useFactory: (userRepository: UserRepository) =>
-            new SignUpUserUseCase(userRepository)
+          useFactory: (
+            userRepository: UserRepository,
+            bcryptService: BcryptService
+          ) => new SignUpUserUseCase(userRepository, bcryptService)
         },
         {
-          inject: [UserRepository],
+          inject: [UserRepository, BcryptService, JwtService],
           provide: UseCasesProxyModule.SIGN_IN_USER_USECASE_PROXY,
-          useFactory: (userRepository: UserRepository) =>
-            new SignInUserUseCase(userRepository)
+          useFactory: (
+            userRepository: UserRepository,
+            bcryptService: BcryptService,
+            jwtService: JwtService
+          ) => new SignInUserUseCase(userRepository, bcryptService, jwtService)
         },
         {
           inject: [UserRepository],
@@ -61,10 +72,12 @@ export class UseCasesProxyModule {
             new FindAllUserUseCase(userRepository)
         },
         {
-          inject: [UserRepository],
+          inject: [UserRepository, BcryptService],
           provide: UseCasesProxyModule.UPDATE_USER_USECASE_PROXY,
-          useFactory: (userRepository: UserRepository) =>
-            new UpdateUserUseCase(userRepository)
+          useFactory: (
+            userRepository: UserRepository,
+            bcryptService: BcryptService
+          ) => new UpdateUserUseCase(userRepository, bcryptService)
         },
         {
           inject: [UserRepository],
@@ -75,14 +88,26 @@ export class UseCasesProxyModule {
         {
           inject: [UrlRepository],
           provide: UseCasesProxyModule.SHORTEN_URL_USECASES_PROXY,
-          useFactory: (UrlRepository: UrlRepository) =>
-            new ShortenUrlUseCase(UrlRepository)
+          useFactory: (urlRepository: UrlRepository) =>
+            new ShortenUrlUseCase(urlRepository)
+        },
+        {
+          inject: [UrlRepository],
+          provide: UseCasesProxyModule.FIND_ALL_URL_USECASE_PROXY,
+          useFactory: (urlRepository: UrlRepository) =>
+            new FindAllUrlUseCase(urlRepository)
         },
         {
           inject: [UrlRepository],
           provide: UseCasesProxyModule.REDIRECT_URL_USECASES_PROXY,
-          useFactory: (UrlRepository: UrlRepository) =>
-            new RedirectUrlUseCase(UrlRepository)
+          useFactory: (urlRepository: UrlRepository) =>
+            new RedirectUrlUseCase(urlRepository)
+        },
+        {
+          inject: [UrlRepository],
+          provide: UseCasesProxyModule.FIND_ONE_URL_USECASE_PROXY,
+          useFactory: (urlRepository: UrlRepository) =>
+            new FindOneUrlUseCase(urlRepository)
         }
       ],
       exports: [
@@ -93,7 +118,9 @@ export class UseCasesProxyModule {
         UseCasesProxyModule.UPDATE_USER_USECASE_PROXY,
         UseCasesProxyModule.DELETE_USER_USECASE_PROXY,
         UseCasesProxyModule.SHORTEN_URL_USECASES_PROXY,
-        UseCasesProxyModule.REDIRECT_URL_USECASES_PROXY
+        UseCasesProxyModule.FIND_ALL_URL_USECASE_PROXY,
+        UseCasesProxyModule.REDIRECT_URL_USECASES_PROXY,
+        UseCasesProxyModule.FIND_ONE_URL_USECASE_PROXY
       ]
     };
   }

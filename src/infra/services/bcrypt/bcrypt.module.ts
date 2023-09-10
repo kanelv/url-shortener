@@ -4,12 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [ConfigModule],
-  providers: [
-    {
-      provide: 'IBcryptService',
-      useClass: BcryptService
-    }
-  ],
-  exports: ['IBcryptService']
+  providers: [BcryptService],
+  exports: [BcryptService]
 })
 export class BcryptModule {}
