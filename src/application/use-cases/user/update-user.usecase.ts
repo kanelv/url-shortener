@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { IBcryptService } from '../../../domain/adapters';
 import { IUserRepository } from '../../../domain/contracts/repositories';
-import { UpdateUserDto } from '../../../modules/user/dto/update-user.dto';
+import { UpdateUserDto } from '../../../infra/http/dtos/user';
 
 /**
  * Todo:
