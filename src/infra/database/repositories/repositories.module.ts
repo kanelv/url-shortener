@@ -36,25 +36,7 @@ import path from 'path';
       inject: [ConfigService]
     })
   ],
-  providers: [
-    {
-      provide: 'IUserRepository',
-      useClass: UserRepository
-    },
-    {
-      provide: 'IUrlRepository',
-      useClass: UrlRepository
-    }
-  ],
-  exports: [
-    {
-      provide: 'IUserRepository',
-      useClass: UserRepository
-    },
-    {
-      provide: 'IUrlRepository',
-      useClass: UrlRepository
-    }
-  ]
+  providers: [UserRepository, UrlRepository],
+  exports: [UserRepository, UrlRepository]
 })
 export class RepositoriesModule {}

@@ -1,1 +1,1 @@
-export * from './bcrypt.interface';
+export * from './bcrypt.service.interface';

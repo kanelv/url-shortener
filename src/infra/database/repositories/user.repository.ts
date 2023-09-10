@@ -2,7 +2,7 @@ import { Inject, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hashSync } from 'bcryptjs';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
-import { IUserRepository } from '../../../domain/contracts/repositories/user.repository';
+import { IUserRepository } from '../../../domain/contracts/repositories/user.repository.interface';
 import { User as UserEntity } from '../../../domain/entities/user.entity';
 import { User } from '../entities/user.entity';
 import { IBcryptService } from '../../../domain/adapters';

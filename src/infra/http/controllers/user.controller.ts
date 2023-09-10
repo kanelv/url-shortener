@@ -5,6 +5,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Logger,
   Param,
   Patch,
@@ -19,21 +20,27 @@ import { FindOneByIdDto } from '../dtos/common/find-one-by-id.dto';
 import { SignUpUserDto } from '../dtos/user/sign-up-user.dto';
 import { UpdateUserDto } from '../dtos/user/update-user.dto';
 import { FindAllUserUseCase } from './../../../application/use-cases/user/find-all-user.usecase';
+import { UseCasesProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 
 @Controller('users')
 export class UserController {
   constructor(
+    @Inject(UseCasesProxyModule.SIGN_UP_USER_USECASE_PROXY)
     private readonly signUpUserUseCase: SignUpUserUseCase,
+    @Inject(UseCasesProxyModule.FIND_ALL_USER_USECASE_PROXY)
     private readonly findAllUserUseCase: FindAllUserUseCase,
+    @Inject(UseCasesProxyModule.FIND_ONE_USER_USECASE_PROXY)
     private readonly findOneUserUseCase: FindOneUserUseCase,
+    @Inject(UseCasesProxyModule.UPDATE_USER_USECASE_PROXY)
     private readonly updateUserUseCase: UpdateUserUseCase,
+    @Inject(UseCasesProxyModule.DELETE_USER_USECASE_PROXY)
     private readonly deleteUserUseCase: DeleteUserUseCase
   ) {}
 
   readonly logger = new Logger(UserController.name);
 
   @Public()
-  @Post('sign-up')
+  @Post()
   async signUp(@Body() signUpUserDto: SignUpUserDto) {
     try {
       this.logger.debug(`signUp`);

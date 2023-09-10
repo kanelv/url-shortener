@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Logger,
   Param,
   Post,
@@ -15,12 +16,15 @@ import { ShortenUrlUseCase } from '../../../application/use-cases/url/shorten-ur
 import { AuthGuard } from '../../common/guards';
 import { Public } from '../../common/utils/allow-public-request.util';
 import { ShortenURLDto } from '../dtos/url/shorten-url.dto';
+import { UseCasesProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 
 @Controller('urls')
 @UseGuards(AuthGuard)
 export class UrlController {
   constructor(
+    @Inject(UseCasesProxyModule.SHORTEN_URL_USECASES_PROXY)
     private readonly shortenUrlUseCase: ShortenUrlUseCase,
+    @Inject(UseCasesProxyModule.REDIRECT_URL_USECASES_PROXY)
     private readonly redirectUrlUseCase: RedirectUrlUseCase
   ) {}
 

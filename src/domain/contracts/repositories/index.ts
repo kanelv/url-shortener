@@ -1,2 +1,2 @@
-export * from './url.repository';
-export * from './user.repository';
+export * from './url.repository.interface';
+export * from './user.repository.interface';

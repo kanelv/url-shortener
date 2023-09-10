@@ -1,12 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from '../../../domain/contracts/repositories';
 
-// Todo: Please remove Injectable decorator and Inject, because this is use case and it should not depend on a specific framework
-@Injectable()
 export class DeleteUserUseCase {
-  constructor(
-    @Inject('IUserRepository') private readonly userRepository: IUserRepository
-  ) {}
+  constructor(private readonly userRepository: IUserRepository) {}
 
   async execute(id: number): Promise<boolean> {
     return this.userRepository.deleteOne(id);

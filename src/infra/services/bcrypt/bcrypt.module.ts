@@ -10,11 +10,6 @@ import { ConfigModule } from '@nestjs/config';
       useClass: BcryptService
     }
   ],
-  exports: [
-    {
-      provide: 'IBcryptService',
-      useClass: BcryptService
-    }
-  ]
+  exports: ['IBcryptService']
 })
 export class BcryptModule {}

@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { isURL } from 'class-validator';
 import { nanoid } from 'nanoid';
 import { Repository } from 'typeorm';
-import { IUrlRepository } from '../../../domain/contracts/repositories/url.repository';
+import { IUrlRepository } from '../../../domain/contracts/repositories/url.repository.interface';
 import { Url } from '../entities/url.entity';
 
 @Injectable()
