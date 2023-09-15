@@ -1,23 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InsertResult, Repository } from 'typeorm';
-import { IUrlRepository } from '../../../domain/contracts/repositories/url.repository.interface';
+import {
+  UrlFindOneBy,
+  IUrlRepository
+} from '../../../domain/contracts/repositories/url.repository.interface';
 import { Url } from '../entities/url.entity';
 
 @Injectable()
-export class UrlRepository extends Repository<Url> implements IUrlRepository {
+export class UrlRepository implements IUrlRepository {
   constructor(
     @InjectRepository(Url)
-    private urlRepository: Repository<Url>,
-    private readonly configService: ConfigService
-  ) {
-    super(
-      urlRepository.target,
-      urlRepository.manager,
-      urlRepository.queryRunner
-    );
-  }
+    private urlRepository: Repository<Url>
+  ) {}
 
   private readonly logger = new Logger(UrlRepository.name);
 
@@ -53,16 +48,8 @@ export class UrlRepository extends Repository<Url> implements IUrlRepository {
     return handleUrls;
   }
 
-  async findOneById(id: number): Promise<Url> {
-    return this.urlRepository.findOneBy({ id });
-  }
-
-  async findOneByOriginalUrl(originalUrl: string): Promise<Url> {
-    return this.urlRepository.findOneBy({ originalUrl });
-  }
-
-  async findOneByUrlCode(urlCode: string): Promise<Url> {
-    return this.urlRepository.findOneBy({ urlCode });
+  async findOneBy(findOneBy: UrlFindOneBy): Promise<Url> {
+    return this.urlRepository.findOneBy(findOneBy);
   }
 
   async isExist(id: number): Promise<boolean> {

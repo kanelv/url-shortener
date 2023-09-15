@@ -4,6 +4,6 @@ export class FindOneUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
   async execute(id: number): Promise<any> {
-    return await this.userRepository.findOneById(id);
+    return await this.userRepository.findOneBy({ id });
   }
 }

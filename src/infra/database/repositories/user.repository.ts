@@ -1,24 +1,18 @@
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
-import { IUserRepository } from '../../../domain/contracts/repositories/user.repository.interface';
+import {
+  UserFindOneBy,
+  IUserRepository
+} from '../../../domain/contracts/repositories/user.repository.interface';
 import { User as UserEntity } from '../../../domain/entities/user.entity';
 import { User } from '../entities/user.entity';
 
-export class UserRepository
-  extends Repository<User>
-  implements IUserRepository
-{
+export class UserRepository implements IUserRepository {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>
-  ) {
-    super(
-      userRepository.target,
-      userRepository.manager,
-      userRepository.queryRunner
-    );
-  }
+  ) {}
 
   private readonly logger = new Logger(UserRepository.name);
 
@@ -41,43 +35,37 @@ export class UserRepository
 
   async findAll(): Promise<any[]> {
     const users: User[] = await this.userRepository.find();
-    this.logger.debug(`findMany::users: ${JSON.stringify(users, null, 2)}`);
+    this.logger.debug(`findAll::users: ${JSON.stringify(users, null, 2)}`);
 
     const handleUsers = users.map((user) => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
     this.logger.debug(
-      `findMany::handleUsers: ${JSON.stringify(handleUsers, null, 2)}`
+      `findAll::handleUsers: ${JSON.stringify(handleUsers, null, 2)}`
     );
 
     return handleUsers;
   }
 
-  async findOneById(id: number): Promise<any> {
-    this.logger.debug(`findOneById::id: ${id}`);
+  async findOneBy(findOneBy: UserFindOneBy): Promise<any> {
+    this.logger.debug(
+      `findOneBy::findOneBy: ${JSON.stringify(findOneBy, null, 2)}`
+    );
 
-    const passiveUser: User = await this.userRepository.findOneBy({ id });
+    const passiveUser: User = await this.userRepository.findOneBy(findOneBy);
 
     this.logger.debug(
-      `findOneById::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
+      `findOneBy::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
     );
 
     if (!passiveUser) {
-      throw new Error(`User ${id} is not exist`);
+      throw new Error(`Not found User has ${findOneBy}`);
     }
 
-    const { password, createdAt, updatedAt, ...result } = passiveUser;
+    const { createdAt, updatedAt, ...result } = passiveUser;
 
     return result;
-  }
-
-  async findOneByUserName(userName: string): Promise<any> {
-    return this.userRepository.findOneBy({ userName });
-  }
-
-  async findOneByEmail(email: string): Promise<any> {
-    return this.userRepository.findOneBy({ email });
   }
 
   async updateOne(

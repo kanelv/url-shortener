@@ -10,7 +10,6 @@ import { IUserRepository } from '../../../domain/contracts/repositories';
  * - Please replace the UnauthorizedException imported from a specific framework
  * - Please correct type of SignInUserDto by using partial type from UserEntity from domain layer
  */
-
 export class SignInUserUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
@@ -23,13 +22,11 @@ export class SignInUserUseCase {
   async execute(userName: string, password: string): Promise<any> {
     this.logger.debug(`execute::userName: ${userName} - password: ${password}`);
 
-    const foundUser = await this.userRepository.findOneByUserName(userName);
+    const foundUser = await this.userRepository.findOneBy({ userName });
 
     if (!foundUser) {
-      // TODO
-      throw new Error(`Username ${userName} is already exist`);
+      throw new Error(`Not found User that has ${userName}`);
     }
-
     this.logger.debug(
       `execute::foundUser: ${JSON.stringify(foundUser, null, 2)}`
     );

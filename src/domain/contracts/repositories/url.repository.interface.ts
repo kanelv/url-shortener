@@ -1,13 +1,15 @@
 /**
  * Define the contract between the application and the repository layer.
  */
+export interface UrlFindOneBy {
+  id?: number;
+  originalUrl?: string;
+  urlCode?: string;
+}
+
 export interface IUrlRepository {
   add(userId: number, originalUrl: string, urlCode: string): Promise<any>;
   findAll(): Promise<any[]>;
-  findOneById(id: number): Promise<any>;
-  findOneByOriginalUrl(originalUrl: string): Promise<any>;
-  findOneByUrlCode(urlCode: string): Promise<any>;
+  findOneBy(findOneBy: UrlFindOneBy): Promise<any>;
   isExist(id: number): Promise<any>;
 }
-
-// export const IUrlRepository = Symbol('IUrlRepository');

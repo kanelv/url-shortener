@@ -9,7 +9,8 @@ import {
   Logger,
   Param,
   Patch,
-  Post
+  Post,
+  Request
 } from '@nestjs/common';
 import {
   DeleteUserUseCase,
@@ -21,6 +22,7 @@ import { SignUpUserDto } from '../dtos/user/sign-up-user.dto';
 import { UpdateUserDto } from '../dtos/user/update-user.dto';
 import { FindAllUserUseCase } from './../../../application/use-cases/user/find-all-user.usecase';
 import { UseCasesProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
+import { request } from 'http';
 
 @Controller('users')
 export class UserController {
@@ -56,9 +58,12 @@ export class UserController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Request() request) {
     try {
-      this.logger.debug('findAll');
+      this.logger.debug(`findAll`);
+
+      const { user } = request;
+      this.logger.debug(`findAll::user: ${JSON.stringify(user, null, 2)}`);
 
       const users = await this.findAllUserUseCase.execute();
 
@@ -74,15 +79,23 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(@Param() { id }: FindOneByIdDto) {
+  async findOne(@Param() { id }: FindOneByIdDto, @Request() request) {
     try {
-      this.logger.debug('findOne::id', id);
+      this.logger.debug(`findOne::id: ${id} - request: ${request}`, id);
 
-      const user = await this.findOneUserUseCase.execute(id);
+      const { user } = request;
+
+      if (user.id !== id) {
+        throw new Error('You are not allowed to access this resource');
+      }
+
+      const foundUser = await this.findOneUserUseCase.execute(id);
+
+      const { password, ...userWithoutPassword } = foundUser;
 
       return {
         status: true,
-        user
+        user: userWithoutPassword
       };
     } catch (error) {
       this.logger.error('findOne::error', error);
