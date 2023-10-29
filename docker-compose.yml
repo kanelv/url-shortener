@@ -1,0 +1,29 @@
+version: '3.3'
+
+services:
+  edison_db:
+    image: postgres:12
+    environment:
+      POSTGRES_DB: url-shortener
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15432:5432"
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d
+  pgadmin:
+    image: dpage/pgadmin4:4.15
+    container_name: pgadmin4
+    ports:
+      - 8000:80
+    volumes:
+      - ./postgres/servers.json:/pgadmin4/servers.json
+      - url-shortener_pgadmin:/var/lib/pgadmin/storage:rw
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root
+      PGADMIN_DEFAULT_PASSWORD: root
+    hostname: pgadmin4
+    restart: always
+volumes:
+  url-shortener_pgadmin:
+    driver: local

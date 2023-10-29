@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "edison",
+      "Group": "GS",
+      "Port": 5432,
+      "Username": "postgres",
+      "Host": "edison_db",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}
