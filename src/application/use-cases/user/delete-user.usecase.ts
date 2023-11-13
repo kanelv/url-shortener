@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
-import { IUserRepository } from '../../../domain/contracts/repositories';
+import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 
 export class DeleteUserUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(private readonly userRepository: AbstractUserRepository) {}
 
   private readonly logger = new Logger(DeleteUserUseCase.name);
 

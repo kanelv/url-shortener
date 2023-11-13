@@ -58,20 +58,27 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+### Reference
+https://www.digitalocean.com/community/tutorials/how-to-build-a-type-safe-url-shortener-in-nodejs-with-nestjs#step-1-preparing-your-development-environments
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# URL SHORTENER
+
+## Requirement
+
+## Setup
+
+### Database
+
+```bash
+npm run migration:generate src/core/database/migrations/init
+```
+## Test
+
+## References
+
+## Free PostgreSQL for demo
+https://dev.to/prisma/set-up-a-free-postgresql-database-on-supabase-to-use-with-prisma-3pk6
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
-
-
-### Reference
-https://www.digitalocean.com/community/tutorials/how-to-build-a-type-safe-url-shortener-in-nodejs-with-nestjs#step-1-preparing-your-development-environments
+- Author - [Cuong Le](https://github.com/kanelv)

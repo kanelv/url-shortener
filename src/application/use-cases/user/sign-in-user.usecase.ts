@@ -1,7 +1,7 @@
 import { Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IBcryptService } from '../../../domain/adapters';
-import { IUserRepository } from '../../../domain/contracts/repositories';
+import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 
 /**
  * TODO:
@@ -12,7 +12,7 @@ import { IUserRepository } from '../../../domain/contracts/repositories';
  */
 export class SignInUserUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
+    private readonly userRepository: AbstractUserRepository,
     private readonly bcryptService: IBcryptService,
     private readonly jwtService: JwtService
   ) {}

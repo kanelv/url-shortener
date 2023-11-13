@@ -1,7 +1,7 @@
-import { IUrlRepository } from '../../../domain/contracts/repositories';
+import { AbstractUrlRepository } from '../../../domain/contracts/repositories';
 
 export class FindOneUrlUseCase {
-  constructor(private readonly urlRepository: IUrlRepository) {}
+  constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
   async execute(id: number): Promise<string> {
     const url = await this.urlRepository.findOneBy({ id });

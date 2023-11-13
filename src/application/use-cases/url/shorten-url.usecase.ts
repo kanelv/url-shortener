@@ -1,6 +1,6 @@
 import { UnprocessableEntityException } from '@nestjs/common';
 import { nanoid } from 'nanoid';
-import { IUrlRepository } from '../../../domain/contracts/repositories';
+import { AbstractUrlRepository } from '../../../domain/contracts/repositories';
 
 /**
  * TODO:
@@ -8,7 +8,7 @@ import { IUrlRepository } from '../../../domain/contracts/repositories';
  *
  */
 export class ShortenUrlUseCase {
-  constructor(private readonly urlRepository: IUrlRepository) {}
+  constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
   async execute(userId: number, originalUrl: string): Promise<any> {
     try {

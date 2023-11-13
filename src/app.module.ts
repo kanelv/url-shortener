@@ -5,7 +5,7 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import fs from 'fs';
 import path from 'path';
 import { DatabaseModule } from './infra/database/database.module';
-import { ControllersModule } from './infra/http/controllers/controllers.module';
+import { ControllersModule } from './ia/controllers/controllers.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
 
 @Module({

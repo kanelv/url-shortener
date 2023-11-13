@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { IBcryptService } from '../../../domain/adapters';
-import { IUserRepository } from '../../../domain/contracts/repositories';
+import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 
 /**
  * Todo:
@@ -9,7 +9,7 @@ import { IUserRepository } from '../../../domain/contracts/repositories';
  */
 export class SignUpUserUseCase {
   constructor(
-    private readonly userRepository: IUserRepository,
+    private readonly userRepository: AbstractUserRepository,
     private readonly bcryptService: IBcryptService
   ) {}
 

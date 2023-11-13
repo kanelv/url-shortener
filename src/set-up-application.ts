@@ -1,20 +1,17 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import compression from 'compression';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType
+} from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  // Setup CORS
+export async function setUpApplication(app: INestApplication): Promise<void> {
   app.enableCors({
     origin: '*',
-    methods: 'GET, PUT, POST, DELETE',
+    methods: 'GET, PATCH, POST, DELETE',
     allowedHeaders: 'Content-Type, Authorization'
   });
 
-  // Setup Validation
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -25,19 +22,21 @@ async function bootstrap() {
     })
   );
 
-  // Setup Swagger
+  // Uncomment this line if you find a way to make it work on Amazon API Gateway
+  // app.use(compression());
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1'
+  });
+
   const config = new DocumentBuilder()
-    .setTitle('URLShortener APIs')
-    .setDescription('The URLShortener API description')
+    .setTitle('BidderForJEPX APIs')
+    .setDescription('The BidderForJEPX API description')
     .setVersion('1.0')
-    .addTag('url-shortener')
+    .addTag('bidders-for-jepx')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
-  app.use(compression());
-
-  await app.listen(3000);
 }
-bootstrap();

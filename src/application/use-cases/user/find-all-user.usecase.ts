@@ -1,7 +1,7 @@
-import { IUserRepository } from '../../../domain/contracts/repositories';
+import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 
 export class FindAllUserUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(private readonly userRepository: AbstractUserRepository) {}
 
   async execute(): Promise<any> {
     return this.userRepository.findAll();

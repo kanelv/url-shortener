@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { InsertResult, Repository } from 'typeorm';
 import {
   UrlFindOneBy,
-  IUrlRepository
-} from '../../../domain/contracts/repositories/url.repository.interface';
+  AbstractUrlRepository
+} from '../../../domain/contracts/repositories';
 import { Url } from '../entities/url.entity';
 
 @Injectable()
-export class UrlRepository implements IUrlRepository {
+export class UrlRepository implements AbstractUrlRepository {
   constructor(
     @InjectRepository(Url)
     private urlRepository: Repository<Url>

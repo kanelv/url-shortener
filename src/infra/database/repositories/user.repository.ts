@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import {
   UserFindOneBy,
-  IUserRepository
-} from '../../../domain/contracts/repositories/user.repository.interface';
-import { User as UserEntity } from '../../../domain/entities/user.entity';
-import { User } from '../entities/user.entity';
+  AbstractUserRepository
+} from '../../../domain/contracts/repositories';
+import { User as UserEntity } from '../../../domain/entities';
+import { User } from '../entities';
 
-export class UserRepository implements IUserRepository {
+export class UserRepository implements AbstractUserRepository {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>

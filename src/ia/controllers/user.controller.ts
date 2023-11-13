@@ -1,11 +1,8 @@
-import { UpdateUserUseCase } from './../../../application/use-cases/user/update-user.usecase';
-import { FindOneUserUseCase } from './../../../application/use-cases/user/find-one-user.usecase';
 import {
   Body,
   Controller,
   Delete,
   Get,
-  Inject,
   Logger,
   Param,
   Patch,
@@ -14,28 +11,22 @@ import {
 } from '@nestjs/common';
 import {
   DeleteUserUseCase,
-  SignUpUserUseCase
-} from '../../../application/use-cases/user';
-import { Public } from '../../common/utils/allow-public-request.util';
-import { FindOneByIdDto } from '../dtos/common/find-one-by-id.dto';
-import { SignUpUserDto } from '../dtos/user/sign-up-user.dto';
-import { UpdateUserDto } from '../dtos/user/update-user.dto';
-import { FindAllUserUseCase } from './../../../application/use-cases/user/find-all-user.usecase';
-import { UseCasesProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
-import { request } from 'http';
+  FindAllUserUseCase,
+  FindOneUserUseCase,
+  SignUpUserUseCase,
+  UpdateUserUseCase
+} from '../../application/use-cases/user';
+import { Public } from '../../infra/common/utils/allow-public-request.util';
+import { FindOneByIdDto } from '../dto/common/find-one-by-id.dto';
+import { FindOneUserByIdDto, SignUpUserDto, UpdateUserDto } from '../dto/user';
 
 @Controller('users')
 export class UserController {
   constructor(
-    @Inject(UseCasesProxyModule.SIGN_UP_USER_USECASE_PROXY)
     private readonly signUpUserUseCase: SignUpUserUseCase,
-    @Inject(UseCasesProxyModule.FIND_ALL_USER_USECASE_PROXY)
     private readonly findAllUserUseCase: FindAllUserUseCase,
-    @Inject(UseCasesProxyModule.FIND_ONE_USER_USECASE_PROXY)
     private readonly findOneUserUseCase: FindOneUserUseCase,
-    @Inject(UseCasesProxyModule.UPDATE_USER_USECASE_PROXY)
     private readonly updateUserUseCase: UpdateUserUseCase,
-    @Inject(UseCasesProxyModule.DELETE_USER_USECASE_PROXY)
     private readonly deleteUserUseCase: DeleteUserUseCase
   ) {}
 
@@ -79,7 +70,7 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(@Param() { id }: FindOneByIdDto, @Request() request) {
+  async findOne(@Param() { id }: FindOneUserByIdDto, @Request() request) {
     try {
       this.logger.debug(`findOne::id: ${id} - request: ${request}`, id);
 

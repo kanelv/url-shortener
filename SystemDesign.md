@@ -70,7 +70,12 @@ Assuming, we store each link or record in our databases for 5 years. Since we ex
 Since the data is not strongly relational, NoSQL databases will be a better choice here
 refs: SQL and NoSQL comparison at the link below
 https://www.karanpratapsingh.com/courses/system-design/sql-vs-nosql-databases
+=> MongoDB or Cassandra
+
 ## References
 https://dev.to/karanpratapsingh/system-design-url-shortener-10i5
 https://www.geeksforgeeks.org/system-design-url-shortening-service/
 https://www.digitalocean.com/community/tutorials/how-to-build-a-type-safe-url-shortener-in-nodejs-with-nestjs
+
+# For UI Idea
+https://www.shorturl.at/
