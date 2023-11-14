@@ -11,6 +11,6 @@ import { AbstractBcryptService } from '../../../domain/adapters';
       useClass: BcryptService
     }
   ],
-  exports: [BcryptService]
+  exports: [AbstractBcryptService]
 })
 export class BcryptModule {}

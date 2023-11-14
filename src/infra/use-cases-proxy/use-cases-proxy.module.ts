@@ -20,7 +20,7 @@ import {
 } from '../../domain/contracts/repositories';
 import { RepositoriesModule } from '../database/repositories/repositories.module';
 import { BcryptModule } from '../services/bcrypt/bcrypt.module';
-import { BcryptService } from '../services/bcrypt/bcrypt.service';
+import { AbstractBcryptService } from '../../domain/adapters';
 
 @Module({
   imports: [BcryptModule, RepositoriesModule]
@@ -31,19 +31,19 @@ export class UseCasesProxyModule {
       module: UseCasesProxyModule,
       providers: [
         {
-          inject: [AbstractUserRepository, BcryptService],
+          inject: [AbstractUserRepository, AbstractBcryptService],
           provide: SignUpUserUseCase,
           useFactory: (
             userRepository: AbstractUserRepository,
-            bcryptService: BcryptService
+            bcryptService: AbstractBcryptService
           ) => new SignUpUserUseCase(userRepository, bcryptService)
         },
         {
-          inject: [AbstractUserRepository, BcryptService, JwtService],
+          inject: [AbstractUserRepository, AbstractBcryptService, JwtService],
           provide: SignInUserUseCase,
           useFactory: (
             userRepository: AbstractUserRepository,
-            bcryptService: BcryptService,
+            bcryptService: AbstractBcryptService,
             jwtService: JwtService
           ) => new SignInUserUseCase(userRepository, bcryptService, jwtService)
         },
@@ -60,11 +60,11 @@ export class UseCasesProxyModule {
             new FindAllUserUseCase(userRepository)
         },
         {
-          inject: [AbstractUserRepository, BcryptService],
+          inject: [AbstractUserRepository, AbstractBcryptService],
           provide: UpdateUserUseCase,
           useFactory: (
             userRepository: AbstractUserRepository,
-            bcryptService: BcryptService
+            bcryptService: AbstractBcryptService
           ) => new UpdateUserUseCase(userRepository, bcryptService)
         },
         {
