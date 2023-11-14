@@ -6,7 +6,7 @@ module.exports = {
     '^.+\\.(t|j)s$': 'ts-jest'
   },
   collectCoverageFrom: ['**/*.service.(t|j)s'],
-  coverageDirectory: '../coverage',
+  coverageDirectory: './coverage',
   testEnvironment: 'node',
   collectCoverage: true,
   coverageReporters: ['html'],
@@ -22,7 +22,7 @@ module.exports = {
       statements: 80
     }
   },
-  globalSetup: '../global-setup.js',
+  globalSetup: './global-setup.js',
   // Suppress console output during test runs
   silent: true
 };
