@@ -3,6 +3,28 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "**/*.xsd",
+        "watchAssets": true,
+        "outDir": "dist/src"
+      },
+      {
+        "include": "**/*.wsdl",
+        "watchAssets": true,
+        "outDir": "dist/src"
+      },
+      {
+        "include": "**/*.xml",
+        "watchAssets": true,
+        "outDir": "dist/src"
+      },
+      {
+        "include": "**/*.pem",
+        "watchAssets": true,
+        "outDir": "dist/src"
+      }
+    ]
   }
 }
