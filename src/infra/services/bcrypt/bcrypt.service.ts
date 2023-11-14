@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { hashSync, compareSync } from 'bcryptjs';
-import { IBcryptService } from '../../../domain/adapters/bcrypt.service.interface';
+import { AbstractBcryptService } from '../../../domain/adapters';
 
 @Injectable()
-export class BcryptService implements IBcryptService {
+export class BcryptService implements AbstractBcryptService {
   constructor(private readonly configService: ConfigService) {}
 
   async hash(hashString: string): Promise<string> {

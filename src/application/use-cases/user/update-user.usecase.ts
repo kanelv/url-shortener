@@ -1,6 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { IBcryptService } from '../../../domain/adapters';
-import { AbstractUserRepository } from '../../../domain/contracts/repositories';
+import { AbstractBcryptService } from '../../../domain/adapters';
+import {
+  AbstractUserRepository,
+  UpdateOneUser
+} from '../../../domain/contracts/repositories';
 import { UpdateUserDto } from '../../../ia/dto/user';
 
 /**
@@ -11,7 +14,7 @@ import { UpdateUserDto } from '../../../ia/dto/user';
 export class UpdateUserUseCase {
   constructor(
     private readonly userRepository: AbstractUserRepository,
-    private readonly bcryptService: IBcryptService
+    private readonly bcryptService: AbstractBcryptService
   ) {}
 
   private readonly logger = new Logger(UpdateUserUseCase.name);
@@ -40,7 +43,10 @@ export class UpdateUserUseCase {
         ? { password: encryptedPassword, ...remainUserDetail }
         : { ...remainUserDetail };
 
-      return this.userRepository.updateOne(id, handledUpdateUser);
+      return this.userRepository.updateOne({
+        findOneUser: { id },
+        updateUser: handledUpdateUser
+      });
     } else {
       return false;
     }

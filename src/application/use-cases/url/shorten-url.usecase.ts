@@ -13,7 +13,7 @@ export class ShortenUrlUseCase {
   async execute(userId: number, originalUrl: string): Promise<any> {
     try {
       //check if the Url has already been shortened
-      const shortenedUrl = await this.urlRepository.findOneBy({ originalUrl });
+      const shortenedUrl = await this.urlRepository.findOne({ originalUrl });
 
       //return it if it exists
       if (shortenedUrl) {
@@ -26,7 +26,7 @@ export class ShortenUrlUseCase {
       //if it doesn't exist, shorten it
       const urlCode = nanoid(10);
 
-      this.urlRepository.add(userId, originalUrl, urlCode);
+      this.urlRepository.add({ userId, originalUrl, urlCode });
 
       // return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${urlCode}`;
 

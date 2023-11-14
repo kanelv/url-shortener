@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { IBcryptService } from '../../../domain/adapters';
+import { AbstractBcryptService } from '../../../domain/adapters';
 import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 
 /**
@@ -10,7 +10,7 @@ import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 export class SignUpUserUseCase {
   constructor(
     private readonly userRepository: AbstractUserRepository,
-    private readonly bcryptService: IBcryptService
+    private readonly bcryptService: AbstractBcryptService
   ) {}
 
   private readonly logger = new Logger(SignUpUserUseCase.name);
@@ -26,6 +26,6 @@ export class SignUpUserUseCase {
 
     const encryptedPassword = await this.bcryptService.hash(password);
 
-    return this.userRepository.add(userName, encryptedPassword);
+    return this.userRepository.add({ userName, password: encryptedPassword });
   }
 }

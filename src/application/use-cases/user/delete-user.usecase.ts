@@ -12,7 +12,7 @@ export class DeleteUserUseCase {
     const isExist = await this.userRepository.isExist({ id });
 
     if (isExist) {
-      return this.userRepository.deleteOne(id);
+      return this.userRepository.deleteOne({ id });
     } else {
       return false;
     }

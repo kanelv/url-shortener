@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InsertResult, Repository } from 'typeorm';
+import { DeleteResult, InsertResult, Repository } from 'typeorm';
 import {
-  UrlFindOneBy,
-  AbstractUrlRepository
+  AbstractUrlRepository,
+  CreateOneUrl,
+  FindOneUrl
 } from '../../../domain/contracts/repositories';
+import { Url as UrlEntity } from '../../../domain/entities';
 import { Url } from '../entities/url.entity';
 
 @Injectable()
@@ -16,17 +18,8 @@ export class UrlRepository implements AbstractUrlRepository {
 
   private readonly logger = new Logger(UrlRepository.name);
 
-  async add(
-    userId: number,
-    originalUrl: string,
-    urlCode: string
-  ): Promise<any> {
-    //create a new url record
-    const newUrl = this.urlRepository.create({
-      urlCode,
-      originalUrl,
-      userId: userId
-    });
+  async add(createOneUrl: CreateOneUrl): Promise<any> {
+    const newUrl = this.urlRepository.create(createOneUrl);
 
     const insertResult: InsertResult = await this.urlRepository.insert(newUrl);
 
@@ -37,24 +30,42 @@ export class UrlRepository implements AbstractUrlRepository {
     const urls: Url[] = await this.urlRepository.find();
     this.logger.debug(`findAll::urls: ${JSON.stringify(urls, null, 2)}`);
 
-    const handleUrls = urls.map((url) => {
-      const { user, ...urlWithoutPassword } = url;
-      return urlWithoutPassword;
+    const handledUrls = urls.map((url) => {
+      const { user, ...urlWithoutUser } = url;
+      return urlWithoutUser;
     });
     this.logger.debug(
-      `findMany::handleUrls: ${JSON.stringify(handleUrls, null, 2)}`
+      `findMany::handledUrls: ${JSON.stringify(handledUrls, null, 2)}`
     );
 
-    return handleUrls;
+    return handledUrls;
   }
 
-  async findOneBy(findOneBy: UrlFindOneBy): Promise<Url> {
-    return this.urlRepository.findOneBy(findOneBy);
+  async findOne(findOneUrl: FindOneUrl): Promise<Url> {
+    return this.urlRepository.findOne({
+      where: findOneUrl
+    });
   }
 
-  async isExist(id: number): Promise<boolean> {
+  async deleteOne(findOneUrl: FindOneUrl): Promise<any> {
+    this.logger.debug(`deleteOne::findOneUrl: ${findOneUrl}`);
+    const deleteResult: DeleteResult = await this.urlRepository.delete(
+      findOneUrl
+    );
+    this.logger.debug(`delete::deleteResult: ${JSON.stringify(deleteResult)}`);
+
+    if (deleteResult && deleteResult.affected) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async isExist(
+    conditions: Partial<Omit<UrlEntity, 'user'> & { id: number }>
+  ): Promise<boolean> {
     return this.urlRepository.exist({
-      where: { id }
+      where: conditions
     });
   }
 }

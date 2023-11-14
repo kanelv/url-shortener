@@ -14,7 +14,10 @@ import {
   SignUpUserUseCase,
   UpdateUserUseCase
 } from '../../application/use-cases/user';
-import { UrlRepository, UserRepository } from '../database/repositories';
+import {
+  AbstractUrlRepository,
+  AbstractUserRepository
+} from '../../domain/contracts/repositories';
 import { RepositoriesModule } from '../database/repositories/repositories.module';
 import { BcryptModule } from '../services/bcrypt/bcrypt.module';
 import { BcryptService } from '../services/bcrypt/bcrypt.service';
@@ -28,70 +31,70 @@ export class UseCasesProxyModule {
       module: UseCasesProxyModule,
       providers: [
         {
-          inject: [UserRepository, BcryptService],
+          inject: [AbstractUserRepository, BcryptService],
           provide: SignUpUserUseCase,
           useFactory: (
-            userRepository: UserRepository,
+            userRepository: AbstractUserRepository,
             bcryptService: BcryptService
           ) => new SignUpUserUseCase(userRepository, bcryptService)
         },
         {
-          inject: [UserRepository, BcryptService, JwtService],
+          inject: [AbstractUserRepository, BcryptService, JwtService],
           provide: SignInUserUseCase,
           useFactory: (
-            userRepository: UserRepository,
+            userRepository: AbstractUserRepository,
             bcryptService: BcryptService,
             jwtService: JwtService
           ) => new SignInUserUseCase(userRepository, bcryptService, jwtService)
         },
         {
-          inject: [UserRepository],
+          inject: [AbstractUserRepository],
           provide: FindOneUserUseCase,
-          useFactory: (userRepository: UserRepository) =>
+          useFactory: (userRepository: AbstractUserRepository) =>
             new FindOneUserUseCase(userRepository)
         },
         {
-          inject: [UserRepository],
+          inject: [AbstractUserRepository],
           provide: FindAllUserUseCase,
-          useFactory: (userRepository: UserRepository) =>
+          useFactory: (userRepository: AbstractUserRepository) =>
             new FindAllUserUseCase(userRepository)
         },
         {
-          inject: [UserRepository, BcryptService],
+          inject: [AbstractUserRepository, BcryptService],
           provide: UpdateUserUseCase,
           useFactory: (
-            userRepository: UserRepository,
+            userRepository: AbstractUserRepository,
             bcryptService: BcryptService
           ) => new UpdateUserUseCase(userRepository, bcryptService)
         },
         {
-          inject: [UserRepository],
+          inject: [AbstractUserRepository],
           provide: DeleteUserUseCase,
-          useFactory: (userRepository: UserRepository) =>
+          useFactory: (userRepository: AbstractUserRepository) =>
             new DeleteUserUseCase(userRepository)
         },
         {
-          inject: [UrlRepository],
+          inject: [AbstractUrlRepository],
           provide: ShortenUrlUseCase,
-          useFactory: (urlRepository: UrlRepository) =>
+          useFactory: (urlRepository: AbstractUrlRepository) =>
             new ShortenUrlUseCase(urlRepository)
         },
         {
-          inject: [UrlRepository],
+          inject: [AbstractUrlRepository],
           provide: FindAllUrlUseCase,
-          useFactory: (urlRepository: UrlRepository) =>
+          useFactory: (urlRepository: AbstractUrlRepository) =>
             new FindAllUrlUseCase(urlRepository)
         },
         {
-          inject: [UrlRepository],
+          inject: [AbstractUrlRepository],
           provide: UseCasesProxyModule,
-          useFactory: (urlRepository: UrlRepository) =>
+          useFactory: (urlRepository: AbstractUrlRepository) =>
             new RedirectUrlUseCase(urlRepository)
         },
         {
-          inject: [UrlRepository],
+          inject: [AbstractUrlRepository],
           provide: FindOneUrlUseCase,
-          useFactory: (urlRepository: UrlRepository) =>
+          useFactory: (urlRepository: AbstractUrlRepository) =>
             new FindOneUrlUseCase(urlRepository)
         }
       ],

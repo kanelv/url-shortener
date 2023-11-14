@@ -1,6 +1,6 @@
 import { Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IBcryptService } from '../../../domain/adapters';
+import { AbstractBcryptService } from '../../../domain/adapters';
 import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 
 /**
@@ -13,7 +13,7 @@ import { AbstractUserRepository } from '../../../domain/contracts/repositories';
 export class SignInUserUseCase {
   constructor(
     private readonly userRepository: AbstractUserRepository,
-    private readonly bcryptService: IBcryptService,
+    private readonly bcryptService: AbstractBcryptService,
     private readonly jwtService: JwtService
   ) {}
 
@@ -22,7 +22,7 @@ export class SignInUserUseCase {
   async execute(userName: string, password: string): Promise<any> {
     this.logger.debug(`execute::userName: ${userName} - password: ${password}`);
 
-    const foundUser = await this.userRepository.findOneBy({ userName });
+    const foundUser = await this.userRepository.findOne({ userName });
 
     if (!foundUser) {
       throw new Error(`Not found User that has ${userName}`);

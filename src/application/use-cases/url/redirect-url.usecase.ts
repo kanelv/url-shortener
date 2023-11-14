@@ -4,7 +4,7 @@ export class RedirectUrlUseCase {
   constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
   async execute(urlCode: string): Promise<string> {
-    const url = await this.urlRepository.findOneBy({ urlCode });
+    const url = await this.urlRepository.findOne({ urlCode });
 
     if (url) {
       return url.originalUrl;

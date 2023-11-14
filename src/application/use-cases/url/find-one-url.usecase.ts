@@ -4,7 +4,7 @@ export class FindOneUrlUseCase {
   constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
   async execute(id: number): Promise<string> {
-    const url = await this.urlRepository.findOneBy({ id });
+    const url = await this.urlRepository.findOne({ id });
 
     if (url) {
       return url.originalUrl;

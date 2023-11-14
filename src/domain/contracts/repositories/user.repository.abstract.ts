@@ -1,23 +1,31 @@
 /**
  * Define the contract between the application and the repository layer.
  */
-import { User as UserEntity } from '../../entities/user.entity';
+import { User as UserEntity } from '../../entities';
+import { IRepository } from './repository.interface';
 
-export type UserFindOneBy = {
+export type CreateOneUser = {
+  userName: string;
+  password: string;
+};
+
+export type UpdateOneUser = {
+  findOneUser: FindOneUser;
+  updateUser: Partial<Omit<UserEntity, 'urls'>>;
+};
+
+export type FindOneUser = {
   id?: number;
   userName?: string;
   email?: string;
 };
 
-export abstract class AbstractUserRepository {
-  abstract add(userName: string, password: string): Promise<any>;
+export abstract class AbstractUserRepository implements IRepository {
+  abstract add(createOneUser: CreateOneUser): Promise<any>;
   abstract findAll(): Promise<any[]>;
-  abstract findOneBy(findOneBy: UserFindOneBy): Promise<any>;
-  abstract updateOne(
-    id: number,
-    updateUser: Partial<Omit<UserEntity, 'urls'>>
-  ): Promise<any>;
-  abstract deleteOne(id: number): Promise<boolean>;
+  abstract findOne(findOneUser: FindOneUser): Promise<any>;
+  abstract updateOne(updateOneUser: UpdateOneUser): Promise<any>;
+  abstract deleteOne(findOneUser: FindOneUser): Promise<boolean>;
   abstract isExist(
     conditions: Partial<Omit<UserEntity, 'urls'> & { id: number }>
   ): Promise<boolean>;

@@ -2,8 +2,10 @@ import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import {
-  UserFindOneBy,
-  AbstractUserRepository
+  AbstractUserRepository,
+  CreateOneUser,
+  FindOneUser,
+  UpdateOneUser
 } from '../../../domain/contracts/repositories';
 import { User as UserEntity } from '../../../domain/entities';
 import { User } from '../entities';
@@ -16,11 +18,8 @@ export class UserRepository implements AbstractUserRepository {
 
   private readonly logger = new Logger(UserRepository.name);
 
-  async add(userName: string, password: string): Promise<any> {
-    const newUser = this.userRepository.create({
-      userName,
-      password: password
-    });
+  async add(createOneUser: CreateOneUser): Promise<any> {
+    const newUser = this.userRepository.create(createOneUser);
     this.logger.debug(`create::newUser: ${JSON.stringify(newUser, null, 2)}`);
 
     const insertResult: InsertResult = await this.userRepository.insert(
@@ -37,30 +36,32 @@ export class UserRepository implements AbstractUserRepository {
     const users: User[] = await this.userRepository.find();
     this.logger.debug(`findAll::users: ${JSON.stringify(users, null, 2)}`);
 
-    const handleUsers = users.map((user) => {
+    const handledUsers = users.map((user) => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
     this.logger.debug(
-      `findAll::handleUsers: ${JSON.stringify(handleUsers, null, 2)}`
+      `findAll::handledUsers: ${JSON.stringify(handledUsers, null, 2)}`
     );
 
-    return handleUsers;
+    return handledUsers;
   }
 
-  async findOneBy(findOneBy: UserFindOneBy): Promise<any> {
+  async findOne(findOneUser: FindOneUser): Promise<any> {
     this.logger.debug(
-      `findOneBy::findOneBy: ${JSON.stringify(findOneBy, null, 2)}`
+      `findOne::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
     );
 
-    const passiveUser: User = await this.userRepository.findOneBy(findOneBy);
+    const passiveUser: User = await this.userRepository.findOne({
+      where: findOneUser
+    });
 
     this.logger.debug(
-      `findOneBy::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
+      `findOne::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
     );
 
     if (!passiveUser) {
-      throw new Error(`Not found User has ${findOneBy}`);
+      throw new Error(`Not found User has ${findOneUser}`);
     }
 
     const { createdAt, updatedAt, ...result } = passiveUser;
@@ -68,12 +69,12 @@ export class UserRepository implements AbstractUserRepository {
     return result;
   }
 
-  async updateOne(
-    id: number,
-    updateUser: Partial<Omit<UserEntity, 'urls'>>
-  ): Promise<boolean> {
+  async updateOne({
+    findOneUser,
+    updateUser
+  }: UpdateOneUser): Promise<boolean> {
     const updateResult: UpdateResult = await this.userRepository.update(
-      id,
+      findOneUser,
       updateUser
     );
     this.logger.debug(`update::updateResult: ${JSON.stringify(updateResult)}`);
@@ -85,9 +86,11 @@ export class UserRepository implements AbstractUserRepository {
     }
   }
 
-  async deleteOne(id: number): Promise<boolean> {
-    this.logger.debug(`deleteOne::id: ${id}`);
-    const deleteResult: DeleteResult = await this.userRepository.delete(id);
+  async deleteOne(findOneUser: FindOneUser): Promise<boolean> {
+    this.logger.debug(`deleteOne::findOneUser: ${findOneUser}`);
+    const deleteResult: DeleteResult = await this.userRepository.delete(
+      findOneUser
+    );
     this.logger.debug(`delete::deleteResult: ${JSON.stringify(deleteResult)}`);
 
     if (deleteResult && deleteResult.affected) {
