@@ -87,7 +87,7 @@ export class UseCasesProxyModule {
         },
         {
           inject: [AbstractUrlRepository],
-          provide: UseCasesProxyModule,
+          provide: RedirectUrlUseCase,
           useFactory: (urlRepository: AbstractUrlRepository) =>
             new RedirectUrlUseCase(urlRepository)
         },
@@ -107,7 +107,7 @@ export class UseCasesProxyModule {
         DeleteUserUseCase,
         ShortenUrlUseCase,
         FindAllUrlUseCase,
-        UseCasesProxyModule,
+        RedirectUrlUseCase,
         FindOneUrlUseCase
       ]
     };
