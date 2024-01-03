@@ -6,6 +6,6 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest'
   },
-  globalSetup: '../global-setup.js',
+  globalSetup: '../global-setup.ts',
   silent: true
 };
