@@ -74,6 +74,15 @@ npm run migration:generate src/core/database/migrations/init
 ```
 ## Test
 
+### Running CircleCI Locally
+```bash
+circleci local execute build-and-test
+```
+#### Debug using SSH on CircleCI
+```bash
+ssh -i /path/to/id_rsa user@server.nixcraft.com
+ssh -i ~/.ssh/id_ed25519_kanelv -p 64535 34.227.75.120
+```
 ## References
 
 ## Free PostgreSQL for demo
