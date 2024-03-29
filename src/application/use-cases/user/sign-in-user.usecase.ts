@@ -53,6 +53,6 @@ export class SignInUserUseCase {
     };
     this.logger.debug(`signIn::payload: ${JSON.stringify(payload, null, 2)}`);
 
-    return this.jwtService.sign(payload);
+    return await this.jwtService.signAsync(payload);
   }
 }
