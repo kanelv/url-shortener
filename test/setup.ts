@@ -1,5 +1,5 @@
-import { DataSource } from 'typeorm';
 import { newDb } from 'pg-mem';
+import { DataSource } from 'typeorm';
 
 export const mockDataSource: () => Promise<DataSource> = async () => {
   const db = newDb({
@@ -14,6 +14,13 @@ export const mockDataSource: () => Promise<DataSource> = async () => {
   db.public.registerFunction({
     name: 'version',
     implementation: () => '12.9'
+  });
+
+  db.public.interceptQueries((queryText) => {
+    if (queryText.search(/(obj_description)/g) > -1) {
+      return [];
+    }
+    return null;
   });
 
   const dataSource: DataSource = await db.adapters.createTypeormDataSource({
