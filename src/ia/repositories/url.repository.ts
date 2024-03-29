@@ -5,9 +5,9 @@ import {
   AbstractUrlRepository,
   CreateOneUrl,
   FindOneUrl
-} from '../../../domain/contracts/repositories';
-import { Url as UrlEntity } from '../../../domain/entities';
-import { Url } from '../entities/url.entity';
+} from '../../domain/contracts/repositories';
+import { Url as UrlEntity } from '../../domain/entities';
+import { Url } from '../../infra/frameworks/database/entities/url.entity';
 
 @Injectable()
 export class UrlRepository implements AbstractUrlRepository {

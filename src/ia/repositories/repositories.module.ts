@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BcryptModule } from '../../services/bcrypt/bcrypt.module';
-import { Url, User } from '../entities';
-import { UrlRepository } from './url.repository';
-import { UserRepository } from './user.repository';
 import {
   AbstractUrlRepository,
   AbstractUserRepository
-} from '../../../domain/contracts/repositories';
+} from '../../domain/contracts/repositories';
+import { Url, User } from '../../infra/frameworks/database/entities';
+import { BcryptModule } from '../../infra/services/bcrypt/bcrypt.module';
+import { UrlRepository } from './url.repository';
+import { UserRepository } from './user.repository';
 
 @Module({
   imports: [ConfigModule, TypeOrmModule.forFeature([User, Url]), BcryptModule],

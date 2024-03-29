@@ -6,9 +6,9 @@ import {
   CreateOneUser,
   FindOneUser,
   UpdateOneUser
-} from '../../../domain/contracts/repositories';
-import { User as UserEntity } from '../../../domain/entities';
-import { User } from '../entities';
+} from '../../domain/contracts/repositories';
+import { User as UserEntity } from '../../domain/entities';
+import { User } from '../../infra/frameworks/database/entities';
 
 export class UserRepository implements AbstractUserRepository {
   constructor(

@@ -47,7 +47,6 @@ export class AuthGuard implements CanActivate {
         '',
         this.configService.get('JWT_PUBLIC_KEY')
       );
-
       this.logger.debug(`canActivate::publicKeyPath: ${publicKeyPath}`);
 
       const payload = await this.jwtService.verifyAsync(token, {

@@ -4,8 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import fs from 'fs';
 import path from 'path';
-import { DatabaseModule } from './infra/database/database.module';
 import { ControllersModule } from './ia/controllers/controllers.module';
+import { DatabaseModule } from './infra/frameworks/database/database.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
 
 @Module({
