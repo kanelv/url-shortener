@@ -7,7 +7,8 @@ import {
   Param,
   Patch,
   Post,
-  Request
+  Request,
+  UseGuards
 } from '@nestjs/common';
 import {
   DeleteUserUseCase,
@@ -16,11 +17,13 @@ import {
   SignUpUserUseCase,
   UpdateUserUseCase
 } from '../../application/use-cases/user';
-import { Public } from '../../infra/common/utils/allow-public-request.util';
 import { FindOneByIdDto } from '../dto/common/find-one-by-id.dto';
 import { FindOneUserByIdDto, SignUpUserDto, UpdateUserDto } from '../dto/user';
+import { JwtAuthGuard } from '../guards';
+import { Public } from '../guards/public';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly signUpUserUseCase: SignUpUserUseCase,

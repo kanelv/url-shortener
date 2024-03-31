@@ -16,12 +16,12 @@ import {
   RedirectUrlUseCase,
   ShortenUrlUseCase
 } from '../../application/use-cases/url';
-import { AuthGuard } from '../../infra/common/guards';
-import { Public } from '../../infra/common/utils/allow-public-request.util';
 import { ShortenURLDto } from '../dto/url/shorten-url.dto';
+import { JwtAuthGuard } from '../guards';
+import { Public } from '../guards/public';
 
 @Controller('urls')
-@UseGuards(AuthGuard)
+@UseGuards(JwtAuthGuard)
 export class UrlController {
   constructor(
     private readonly shortenUrlUseCase: ShortenUrlUseCase,

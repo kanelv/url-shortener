@@ -1,7 +1,7 @@
 import { User } from './user.entity';
 
 /**
- * ToDo: Finally, we need to create a User entity that all properties should be required.
+ * ToDo: Finally, we need to create a Url entity that all properties should be required.
  */
 export type Url = {
   id: number;

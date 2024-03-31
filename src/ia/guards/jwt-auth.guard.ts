@@ -11,17 +11,17 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { IS_PUBLIC_KEY } from '../utils/allow-public-request.util';
+import { IS_PUBLIC_KEY } from './public';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService
   ) {}
 
-  private readonly logger = new Logger(AuthGuard.name);
+  private readonly logger = new Logger(JwtAuthGuard.name);
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.debug(`canActivate`);
