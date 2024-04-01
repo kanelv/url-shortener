@@ -13,7 +13,7 @@ export const mockDataSource: () => Promise<DataSource> = async () => {
 
   db.public.registerFunction({
     name: 'version',
-    implementation: () => '12.9'
+    implementation: () => '16.2'
   });
 
   db.public.interceptQueries((queryText) => {

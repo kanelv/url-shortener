@@ -36,10 +36,13 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
+
+    this.validateAuthorizationHeader(request);
+
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Not found token in the request header');
     }
 
     try {
@@ -66,6 +69,24 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private validateAuthorizationHeader(request: Request): void {
+    // check if authorization header is set
+    if (!request.headers || !request.headers.authorization) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+
+    // check if authorization header is set only once
+    if (
+      request.headers &&
+      request.headers.authorization &&
+      Array.isArray(request.headers.authorization)
+    ) {
+      throw new UnauthorizedException(
+        'Authorization header should be set only once in the request'
+      );
+    }
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

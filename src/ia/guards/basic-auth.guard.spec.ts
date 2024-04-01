@@ -7,25 +7,34 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
+import { DataSource } from 'typeorm';
+import { mockDataSource } from '../../../test/mock-database';
 import { AbstractUserRepository } from '../../domain/contracts/repositories';
+import { DatabaseModule } from '../../infra/frameworks/database/database.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { BasicAuthGuard } from './basic-auth.guard';
 
-describe('AuthGuard', () => {
+describe('BasicAuthGuard', () => {
+  let dataSource: DataSource;
   let module: TestingModule;
   let basicAuthGuard: BasicAuthGuard;
   let userRepository: AbstractUserRepository;
 
   beforeEach(async () => {
+    dataSource = await mockDataSource();
+
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           envFilePath: '.env.test'
         }),
+        DatabaseModule,
         RepositoriesModule
       ],
       providers: [BasicAuthGuard, Reflector]
     })
+      .overrideProvider(DataSource)
+      .useValue(dataSource)
       .setLogger(new Logger())
       .compile();
 
@@ -37,7 +46,7 @@ describe('AuthGuard', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
     expect(basicAuthGuard).toBeDefined();
   });
 

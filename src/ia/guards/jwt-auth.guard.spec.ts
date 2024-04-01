@@ -8,19 +8,23 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import fs from 'fs';
 import MockDate from 'mockdate';
-import path from 'path';
+import { DataSource } from 'typeorm';
+import { mockDataSource } from '../../../test/mock-database';
 import { AbstractUserRepository } from '../../domain/contracts/repositories';
+import { DatabaseModule } from '../../infra/frameworks/database/database.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-describe('AuthGuard', () => {
+describe('JwtAuthGuard', () => {
+  let dataSource: DataSource;
   let module: TestingModule;
   let jwtAuthGuard: JwtAuthGuard;
   let userRepository: AbstractUserRepository;
 
   beforeEach(async () => {
+    dataSource = await mockDataSource();
+
     module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -31,26 +35,9 @@ describe('AuthGuard', () => {
           imports: [ConfigModule],
           useFactory: async (configService: ConfigService) => {
             const options: JwtModuleOptions = {
-              privateKey: fs.readFileSync(
-                path.resolve(
-                  '',
-                  configService.get(
-                    'JWT_PRIVATE_KEY',
-                    `src/certs/jwt/private.pem`
-                  )
-                )
-              ),
-              publicKey: fs.readFileSync(
-                path.resolve(
-                  '',
-                  configService.get(
-                    'JWT_PUBLIC_KEY',
-                    `src/certs/jwt/public.pem`
-                  )
-                )
-              ),
+              secret: configService.get('JWT_SECRET_KEY'),
               signOptions: {
-                expiresIn: configService.get('TOKEN_EXPIRES_IN', '120s'),
+                expiresIn: configService.get('JWT_TOKEN_EXPIRES_IN', '120s'),
                 issuer: 'Kane Inc.'
                 // algorithm: 'RS256'
               }
@@ -60,10 +47,13 @@ describe('AuthGuard', () => {
           },
           inject: [ConfigService]
         }),
+        DatabaseModule,
         RepositoriesModule
       ],
       providers: [JwtAuthGuard, Reflector]
     })
+      .overrideProvider(DataSource)
+      .useValue(dataSource)
       .setLogger(new Logger())
       .compile();
 
