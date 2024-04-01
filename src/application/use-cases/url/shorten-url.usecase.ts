@@ -26,7 +26,7 @@ export class ShortenUrlUseCase {
       //if it doesn't exist, shorten it
       const urlCode = nanoid(10);
 
-      this.urlRepository.add({ userId, originalUrl, urlCode });
+      await this.urlRepository.add({ userId, originalUrl, urlCode });
 
       // return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${urlCode}`;
 

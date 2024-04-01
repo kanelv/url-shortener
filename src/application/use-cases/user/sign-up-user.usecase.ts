@@ -26,6 +26,9 @@ export class SignUpUserUseCase {
 
     const encryptedPassword = await this.bcryptService.hash(password);
 
-    return this.userRepository.add({ userName, password: encryptedPassword });
+    return await this.userRepository.add({
+      userName,
+      password: encryptedPassword
+    });
   }
 }

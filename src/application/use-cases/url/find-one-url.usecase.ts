@@ -1,13 +1,17 @@
-import { AbstractUrlRepository } from '../../../domain/contracts/repositories';
+import {
+  AbstractUrlRepository,
+  FindOneUrl
+} from '../../../domain/contracts/repositories';
+import { Url } from '../../../domain/entities';
 
 export class FindOneUrlUseCase {
   constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
-  async execute(id: number): Promise<string> {
-    const url = await this.urlRepository.findOne({ id });
+  async execute(findOneUrl: FindOneUrl): Promise<Url> {
+    const url = await this.urlRepository.findOne(findOneUrl);
 
     if (url) {
-      return url.originalUrl;
+      return url;
     } else {
       throw new Error('URL Not Found');
     }

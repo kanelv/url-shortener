@@ -4,6 +4,6 @@ export class FindAllUserUseCase {
   constructor(private readonly userRepository: AbstractUserRepository) {}
 
   async execute(): Promise<any> {
-    return this.userRepository.findAll();
+    return await this.userRepository.findAll();
   }
 }

@@ -80,8 +80,8 @@ export class UrlController {
   ) {
     this.logger.debug(`findOne::id: ${id}`);
 
-    const originalUrl = await this.findOneUrlUseCase.execute(id);
-
-    return res.redirect(originalUrl);
+    return {
+      url: await this.findOneUrlUseCase.execute({ id })
+    };
   }
 }
