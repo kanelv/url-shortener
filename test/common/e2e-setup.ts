@@ -4,8 +4,6 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { ControllersModule } from '../../src/ia/controllers/controllers.module';
-import { JwtAuthGuard } from '../../src/ia/guards';
-import { BasicAuthGuard } from '../../src/ia/guards/basic-auth.guard';
 import { RepositoriesModule } from '../../src/ia/repositories/repositories.module';
 import { DatabaseModule } from '../../src/infra/frameworks/database/database.module';
 import { mockDataSource } from '../mock-database';
@@ -38,8 +36,7 @@ export async function e2eSetup() {
       DatabaseModule,
       RepositoriesModule,
       ControllersModule
-    ],
-    providers: [BasicAuthGuard, JwtAuthGuard]
+    ]
   })
     .overrideProvider(DataSource)
     .useValue(dataSource)
