@@ -1,6 +1,9 @@
 import { UnprocessableEntityException } from '@nestjs/common';
 import { nanoid } from 'nanoid';
-import { AbstractUrlRepository } from '../../../domain/contracts/repositories';
+import {
+  AbstractUrlRepository,
+  CreateOneUrl
+} from '../../../domain/contracts/repositories';
 
 /**
  * TODO:
@@ -10,10 +13,12 @@ import { AbstractUrlRepository } from '../../../domain/contracts/repositories';
 export class ShortenUrlUseCase {
   constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
-  async execute(userId: number, originalUrl: string): Promise<any> {
+  async execute(createOneUrl: CreateOneUrl): Promise<any> {
     try {
       //check if the Url has already been shortened
-      const shortenedUrl = await this.urlRepository.findOne({ originalUrl });
+      const shortenedUrl = await this.urlRepository.findOne({
+        originalUrl: createOneUrl.originalUrl
+      });
 
       //return it if it exists
       if (shortenedUrl) {
@@ -26,7 +31,7 @@ export class ShortenUrlUseCase {
       //if it doesn't exist, shorten it
       const urlCode = nanoid(10);
 
-      await this.urlRepository.add({ userId, originalUrl, urlCode });
+      await this.urlRepository.add(createOneUrl);
 
       // return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${urlCode}`;
 
