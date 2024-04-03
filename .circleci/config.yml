@@ -5,16 +5,29 @@ jobs:
   build-and-test:
     resource_class: medium
     docker:
-      - image: cimg/node:18.15.0
+      - image: cimg/node:20.10.0
+      - image: cimg/postgres:16.2
+        environment:
+          POSTGRES_DB: url-shortener
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          # TZ: 'GMT+7'
+          # PGTZ: 'GMT+7'
     parallelism: 5
     environment:
       NODE_ENV: test
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/url-shortener?schema=public&connection_limit=2
       JWT_PRIVATE_KEY: src/certs/jwt/private.pem
       JWT_PUBLIC_KEY: src/certs/jwt/public.pem
       MEMBER_EXPIRES_IN: 30d
       GUESS_EXPIRES_IN: 24h
       TOKEN_EXPIRES_IN: 30d
     steps:
+      - run:
+          name: Waiting for Postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - checkout
       - run:
           name: Check Node Version
@@ -26,13 +39,17 @@ jobs:
       - node/install-packages:
           app-dir: ./
           cache-path: ./node_modules
-          override-ci-command: npm i
+          override-ci-command: yarn install
       - run:
-          command: npm run test
+          name: Run Migration
+          command: yarn migration:up
+          working_directory: ./
+      - run:
+          command: yarn test
           working_directory: ./
           name: Unit Testing
       - run:
-          command: npm run test:e2e
+          command: yarn test:e2e
           working_directory: ./
       - store_test_results:
           path: ./coverage

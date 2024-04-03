@@ -6,9 +6,9 @@ import {
   CreateOneUser,
   FindOneUser,
   UpdateOneUser
-} from '../../../domain/contracts/repositories';
-import { User as UserEntity } from '../../../domain/entities';
-import { User } from '../entities';
+} from '../../domain/contracts/repositories';
+import { User as UserEntity } from '../../domain/entities';
+import { User } from '../../infra/frameworks/database/entities';
 
 export class UserRepository implements AbstractUserRepository {
   constructor(
@@ -47,6 +47,7 @@ export class UserRepository implements AbstractUserRepository {
     return handledUsers;
   }
 
+  // TODO: need to be updated return type
   async findOne(findOneUser: FindOneUser): Promise<any> {
     this.logger.debug(
       `findOne::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
@@ -103,7 +104,7 @@ export class UserRepository implements AbstractUserRepository {
   async isExist(
     conditions: Partial<Omit<UserEntity, 'urls'> & { id: number }>
   ): Promise<boolean> {
-    return this.userRepository.exist({
+    return this.userRepository.exists({
       where: conditions
     });
   }

@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
+  DeleteUrlUseCase,
   FindAllUrlUseCase,
   FindOneUrlUseCase,
   RedirectUrlUseCase,
@@ -14,13 +15,13 @@ import {
   SignUpUserUseCase,
   UpdateUserUseCase
 } from '../../application/use-cases/user';
+import { AbstractBcryptService } from '../../domain/adapters';
 import {
   AbstractUrlRepository,
   AbstractUserRepository
 } from '../../domain/contracts/repositories';
-import { RepositoriesModule } from '../database/repositories/repositories.module';
+import { RepositoriesModule } from '../../ia/repositories/repositories.module';
 import { BcryptModule } from '../services/bcrypt/bcrypt.module';
-import { AbstractBcryptService } from '../../domain/adapters';
 
 @Module({
   imports: [BcryptModule, RepositoriesModule]
@@ -96,19 +97,26 @@ export class UseCasesProxyModule {
           provide: FindOneUrlUseCase,
           useFactory: (urlRepository: AbstractUrlRepository) =>
             new FindOneUrlUseCase(urlRepository)
+        },
+        {
+          inject: [AbstractUrlRepository],
+          provide: DeleteUrlUseCase,
+          useFactory: (urlRepository: AbstractUrlRepository) =>
+            new DeleteUrlUseCase(urlRepository)
         }
       ],
       exports: [
         SignUpUserUseCase,
         SignInUserUseCase,
-        FindOneUserUseCase,
         FindAllUserUseCase,
+        FindOneUserUseCase,
         UpdateUserUseCase,
         DeleteUserUseCase,
         ShortenUrlUseCase,
         FindAllUrlUseCase,
         RedirectUrlUseCase,
-        FindOneUrlUseCase
+        FindOneUrlUseCase,
+        DeleteUrlUseCase
       ]
     };
   }

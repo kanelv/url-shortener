@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { Role } from '../../../domain/entities/enums/role.enum';
+import { Role } from '../../../../domain/entities/enums/role.enum';
 import { Url } from './url.entity';
 
 @Entity()
