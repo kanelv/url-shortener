@@ -17,7 +17,6 @@ import {
   SignUpUserUseCase,
   UpdateUserUseCase
 } from '../../application/use-cases/user';
-import { FindOneByIdDto } from '../dto/common/find-one-by-id.dto';
 import { FindOneUserByIdDto, SignUpUserDto, UpdateUserDto } from '../dto/user';
 import { JwtAuthGuard } from '../guards';
 import { Public } from '../guards/public';
@@ -41,9 +40,7 @@ export class UserController {
     try {
       this.logger.debug('signUp::signUpUserDto: ', signUpUserDto);
 
-      const { userName, password } = signUpUserDto;
-
-      return this.signUpUserUseCase.execute(userName, password);
+      return this.signUpUserUseCase.execute(signUpUserDto);
     } catch (error) {
       this.logger.error('create::error', error);
 
@@ -51,6 +48,7 @@ export class UserController {
     }
   }
 
+  // TODO need to be response for only admin
   @Get()
   async findAll(@Request() request) {
     try {
@@ -72,18 +70,24 @@ export class UserController {
     }
   }
 
+  // TODO need to be response for a specific user or admin
   @Get(':id')
-  async findOne(@Param() { id }: FindOneUserByIdDto, @Request() request) {
+  async findOne(
+    @Param() findOneUserByIdDto: FindOneUserByIdDto,
+    @Request() request
+  ) {
     try {
-      this.logger.debug(`findOne::id: ${id} - request: ${request}`, id);
+      this.logger.debug(`findOne::findOneUserByIdDto: ${findOneUserByIdDto}`);
 
       const { user } = request;
 
-      if (user.id !== id) {
+      if (user.id !== findOneUserByIdDto.id) {
         throw new Error('You are not allowed to access this resource');
       }
 
-      const foundUser = await this.findOneUserUseCase.execute(id);
+      const foundUser = await this.findOneUserUseCase.execute(
+        findOneUserByIdDto
+      );
 
       const { password, ...userWithoutPassword } = foundUser;
 
@@ -98,15 +102,18 @@ export class UserController {
     }
   }
 
+  // TODO need to be response for a specific user or admin
   @Patch(':id')
   async update(
-    @Param() { id }: FindOneByIdDto,
+    @Param() findOneUserByIdDto: FindOneUserByIdDto,
     @Body() updateUserDto: UpdateUserDto
   ) {
     try {
-      this.logger.debug('update::id', id);
+      this.logger.debug(
+        `update::findOneUserByIdDto: ${findOneUserByIdDto} - updateUserDto: ${updateUserDto}`
+      );
 
-      await this.updateUserUseCase.execute(id, updateUserDto);
+      await this.updateUserUseCase.execute(findOneUserByIdDto, updateUserDto);
 
       return {
         status: true
@@ -118,12 +125,13 @@ export class UserController {
     }
   }
 
+  // TODO need to be response for a specific user or admin
   @Delete(':id')
-  async delete(@Param() { id }: FindOneByIdDto) {
+  async delete(@Param() findOneUserByIdDto: FindOneUserByIdDto) {
     try {
-      this.logger.debug('delete::id', id);
+      this.logger.debug(`delete::findOneUserByIdDto: ${findOneUserByIdDto}`);
 
-      await this.deleteUserUseCase.execute(id);
+      await this.deleteUserUseCase.execute(findOneUserByIdDto);
 
       return {
         status: true

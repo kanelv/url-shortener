@@ -1,6 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { AbstractBcryptService } from '../../../domain/adapters';
-import { AbstractUserRepository } from '../../../domain/contracts/repositories';
+import {
+  AbstractUserRepository,
+  FindOneUser
+} from '../../../domain/contracts/repositories';
 import { UpdateUserDto } from '../../../ia/dto/user';
 
 /**
@@ -16,16 +19,19 @@ export class UpdateUserUseCase {
 
   private readonly logger = new Logger(UpdateUserUseCase.name);
 
-  async execute(id: number, updateUserDto: UpdateUserDto): Promise<boolean> {
+  async execute(
+    findOneUser: FindOneUser,
+    updateUserDto: UpdateUserDto
+  ): Promise<boolean> {
     this.logger.debug(
-      `execute::id: ${id} - userEntity: ${JSON.stringify(
+      `execute::findOneUser: ${findOneUser} - updateUserDto: ${JSON.stringify(
         updateUserDto,
         null,
         2
       )}`
     );
 
-    const isExist = await this.userRepository.isExist({ id });
+    const isExist = await this.userRepository.isExist(findOneUser);
 
     if (isExist) {
       const { password, ...remainUserDetail } = updateUserDto;
@@ -41,7 +47,7 @@ export class UpdateUserUseCase {
         : { ...remainUserDetail };
 
       return this.userRepository.updateOne({
-        findOneUser: { id },
+        findOneUser,
         updateUser: handledUpdateUser
       });
     } else {

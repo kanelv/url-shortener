@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { SignInUserUseCase } from '../../application/use-cases/user/sign-in-user.usecase';
 import { SignInUserDto } from '../dto/user/sign-in-user.dto';
+import { BasicAuthGuard } from '../guards/basic-auth.guard';
 import { Public } from '../guards/public';
 
 @Controller('auth')
@@ -21,14 +22,9 @@ export class AuthController {
   @Post('sign-in')
   async signInByBodyData(@Body() signInUserDto: SignInUserDto) {
     try {
-      this.logger.debug('signIn::signInUserDto: ', signInUserDto);
+      this.logger.debug('signInByBodyData::signInUserDto: ', signInUserDto);
 
-      const { userName, password } = signInUserDto;
-
-      const accessToken = await this.signInUserUseCase.execute(
-        userName,
-        password
-      );
+      const accessToken = await this.signInUserUseCase.execute(signInUserDto);
 
       return {
         accessToken
@@ -40,7 +36,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards()
+  @UseGuards(BasicAuthGuard)
   @Get('sign-in')
   async signInByBasicAuth(@Request() req) {
     try {
@@ -48,12 +44,7 @@ export class AuthController {
         `signInByBasicAuth: ${JSON.stringify(req.user, null, 2)}`
       );
 
-      const { userName, password } = req?.user;
-
-      const accessToken = await this.signInUserUseCase.execute(
-        userName,
-        password
-      );
+      const accessToken = await this.signInUserUseCase.execute(req?.user);
 
       return {
         accessToken
