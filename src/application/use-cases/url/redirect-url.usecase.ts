@@ -1,10 +1,13 @@
-import { AbstractUrlRepository } from '../../../domain/contracts/repositories';
+import {
+  AbstractUrlRepository,
+  FindOneUrl
+} from '../../../domain/contracts/repositories';
 
 export class RedirectUrlUseCase {
   constructor(private readonly urlRepository: AbstractUrlRepository) {}
 
-  async execute(urlCode: string): Promise<string> {
-    const url = await this.urlRepository.findOne({ urlCode });
+  async execute(findOneUrl: FindOneUrl): Promise<string> {
+    const url = await this.urlRepository.findOne(findOneUrl);
 
     if (url) {
       return url.originalUrl;

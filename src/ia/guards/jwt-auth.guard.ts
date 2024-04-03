@@ -11,17 +11,17 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { IS_PUBLIC_KEY } from '../utils/allow-public-request.util';
+import { IS_PUBLIC_KEY } from './public';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService
   ) {}
 
-  private readonly logger = new Logger(AuthGuard.name);
+  private readonly logger = new Logger(JwtAuthGuard.name);
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.debug(`canActivate`);
@@ -36,10 +36,13 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
+
+    this.validateAuthorizationHeader(request);
+
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Not found token in the request header');
     }
 
     try {
@@ -47,7 +50,6 @@ export class AuthGuard implements CanActivate {
         '',
         this.configService.get('JWT_PUBLIC_KEY')
       );
-
       this.logger.debug(`canActivate::publicKeyPath: ${publicKeyPath}`);
 
       const payload = await this.jwtService.verifyAsync(token, {
@@ -67,6 +69,24 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private validateAuthorizationHeader(request: Request): void {
+    // check if authorization header is set
+    if (!request.headers || !request.headers.authorization) {
+      throw new UnauthorizedException('Authorization header is missing');
+    }
+
+    // check if authorization header is set only once
+    if (
+      request.headers &&
+      request.headers.authorization &&
+      Array.isArray(request.headers.authorization)
+    ) {
+      throw new UnauthorizedException(
+        'Authorization header should be set only once in the request'
+      );
+    }
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

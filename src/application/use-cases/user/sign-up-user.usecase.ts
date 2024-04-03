@@ -1,6 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { AbstractBcryptService } from '../../../domain/adapters';
-import { AbstractUserRepository } from '../../../domain/contracts/repositories';
+import {
+  AbstractUserRepository,
+  CreateOneUser
+} from '../../../domain/contracts/repositories';
 
 /**
  * Todo:
@@ -15,17 +18,24 @@ export class SignUpUserUseCase {
 
   private readonly logger = new Logger(SignUpUserUseCase.name);
 
-  async execute(userName: string, password: string): Promise<any> {
-    this.logger.debug(`execute::userName: ${userName} - password: ${password}`);
+  async execute(createOneUser: CreateOneUser): Promise<any> {
+    this.logger.debug(`execute::createOneUser: ${createOneUser}`);
 
-    const exist = await this.userRepository.isExist({ userName });
+    const exist = await this.userRepository.isExist({
+      userName: createOneUser.userName
+    });
 
     if (exist) {
-      throw new Error(`Username ${userName} is already exist`);
+      throw new Error(`Username ${createOneUser.userName} is already exist`);
     }
 
-    const encryptedPassword = await this.bcryptService.hash(password);
+    const encryptedPassword = await this.bcryptService.hash(
+      createOneUser.password
+    );
 
-    return this.userRepository.add({ userName, password: encryptedPassword });
+    return await this.userRepository.add({
+      userName: createOneUser.userName,
+      password: encryptedPassword
+    });
   }
 }

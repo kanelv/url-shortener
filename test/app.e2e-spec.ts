@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { mockDataSource } from './setup';
+import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import request from 'supertest';
 import { DataSource } from 'typeorm';
+import { AppModule } from '../src/app.module';
+import { mockDataSource } from './mock-database';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;

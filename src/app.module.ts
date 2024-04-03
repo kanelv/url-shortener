@@ -4,8 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import fs from 'fs';
 import path from 'path';
-import { DatabaseModule } from './infra/database/database.module';
 import { ControllersModule } from './ia/controllers/controllers.module';
+import { DatabaseModule } from './infra/frameworks/database/database.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
 
 @Module({
@@ -42,7 +42,7 @@ import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
             )
           ),
           signOptions: {
-            expiresIn: configService.get('TOKEN_EXPIRES_IN', '24h'),
+            expiresIn: configService.get('JWT_TOKEN_EXPIRES_IN', '24h'),
             issuer: 'AuthService',
             algorithm: 'RS256'
           }

@@ -1,7 +1,16 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Request,
+  UseGuards
+} from '@nestjs/common';
 import { SignInUserUseCase } from '../../application/use-cases/user/sign-in-user.usecase';
-import { Public } from '../../infra/common/utils/allow-public-request.util';
 import { SignInUserDto } from '../dto/user/sign-in-user.dto';
+import { BasicAuthGuard } from '../guards/basic-auth.guard';
+import { Public } from '../guards/public';
 
 @Controller('auth')
 export class AuthController {
@@ -11,16 +20,31 @@ export class AuthController {
 
   @Public()
   @Post('sign-in')
-  async signIn(@Body() signInUserDto: SignInUserDto) {
+  async signInByBodyData(@Body() signInUserDto: SignInUserDto) {
     try {
-      this.logger.debug('signIn::signInUserDto: ', signInUserDto);
+      this.logger.debug('signInByBodyData::signInUserDto: ', signInUserDto);
 
-      const { userName, password } = signInUserDto;
+      const accessToken = await this.signInUserUseCase.execute(signInUserDto);
 
-      const accessToken = await this.signInUserUseCase.execute(
-        userName,
-        password
+      return {
+        accessToken
+      };
+    } catch (error) {
+      this.logger.error(error);
+
+      throw error;
+    }
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @Get('sign-in')
+  async signInByBasicAuth(@Request() req) {
+    try {
+      this.logger.debug(
+        `signInByBasicAuth: ${JSON.stringify(req.user, null, 2)}`
       );
+
+      const accessToken = await this.signInUserUseCase.execute(req?.user);
 
       return {
         accessToken

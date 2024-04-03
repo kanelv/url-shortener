@@ -1,5 +1,5 @@
+import { newDb, DataType } from 'pg-mem';
 import { DataSource } from 'typeorm';
-import { newDb } from 'pg-mem';
 
 export const mockDataSource: () => Promise<DataSource> = async () => {
   const db = newDb({
@@ -13,7 +13,27 @@ export const mockDataSource: () => Promise<DataSource> = async () => {
 
   db.public.registerFunction({
     name: 'version',
-    implementation: () => '12.9'
+    implementation: () => '16.2'
+  });
+
+  db.public.interceptQueries((queryText) => {
+    if (queryText.search(/(obj_description)/g) > -1) {
+      return [];
+    }
+    return null;
+  });
+
+  // Define the exists(integer[]) function
+  function exists(arr) {
+    // Check if the array is not null and has at least one element
+    return arr != null && arr.length > 0;
+  }
+
+  // Register the function with pg-mem
+  db.public.registerFunction({
+    name: 'exists',
+    args: [DataType.integer],
+    implementation: exists
   });
 
   const dataSource: DataSource = await db.adapters.createTypeormDataSource({

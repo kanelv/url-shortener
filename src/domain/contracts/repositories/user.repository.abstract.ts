@@ -7,6 +7,7 @@ import { IRepository } from './repository.interface';
 export type CreateOneUser = {
   userName: string;
   password: string;
+  email?: string;
 };
 
 export type UpdateOneUser = {

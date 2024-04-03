@@ -7,8 +7,9 @@ import { IRepository } from './repository.interface';
 export type CreateOneUrl = {
   userId: number;
   originalUrl: string;
-  urlCode: string;
+  urlCode?: string;
 };
+
 export type FindOneUrl = {
   id?: number;
   originalUrl?: string;
