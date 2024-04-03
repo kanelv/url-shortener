@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
+  DeleteUrlUseCase,
   FindAllUrlUseCase,
   FindOneUrlUseCase,
   RedirectUrlUseCase,
@@ -96,19 +97,26 @@ export class UseCasesProxyModule {
           provide: FindOneUrlUseCase,
           useFactory: (urlRepository: AbstractUrlRepository) =>
             new FindOneUrlUseCase(urlRepository)
+        },
+        {
+          inject: [AbstractUrlRepository],
+          provide: DeleteUrlUseCase,
+          useFactory: (urlRepository: AbstractUrlRepository) =>
+            new DeleteUrlUseCase(urlRepository)
         }
       ],
       exports: [
         SignUpUserUseCase,
         SignInUserUseCase,
-        FindOneUserUseCase,
         FindAllUserUseCase,
+        FindOneUserUseCase,
         UpdateUserUseCase,
         DeleteUserUseCase,
         ShortenUrlUseCase,
         FindAllUrlUseCase,
         RedirectUrlUseCase,
-        FindOneUrlUseCase
+        FindOneUrlUseCase,
+        DeleteUrlUseCase
       ]
     };
   }

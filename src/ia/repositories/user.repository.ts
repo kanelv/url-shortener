@@ -47,6 +47,7 @@ export class UserRepository implements AbstractUserRepository {
     return handledUsers;
   }
 
+  // TODO: need to be updated return type
   async findOne(findOneUser: FindOneUser): Promise<any> {
     this.logger.debug(
       `findOne::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
