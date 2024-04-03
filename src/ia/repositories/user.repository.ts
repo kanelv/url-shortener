@@ -104,7 +104,7 @@ export class UserRepository implements AbstractUserRepository {
   async isExist(
     conditions: Partial<Omit<UserEntity, 'urls'> & { id: number }>
   ): Promise<boolean> {
-    return this.userRepository.exist({
+    return this.userRepository.exists({
       where: conditions
     });
   }

@@ -37,37 +37,26 @@ export class UserController {
   @Public()
   @Post()
   async signUp(@Body() signUpUserDto: SignUpUserDto) {
-    try {
-      this.logger.debug('signUp::signUpUserDto: ', signUpUserDto);
+    this.logger.debug(
+      `signUp::signUpUserDto: ${JSON.stringify(signUpUserDto, null, 2)}`
+    );
 
-      return this.signUpUserUseCase.execute(signUpUserDto);
-    } catch (error) {
-      this.logger.error('create::error', error);
-
-      throw error;
-    }
+    return {
+      user: await this.signUpUserUseCase.execute(signUpUserDto)
+    };
   }
 
   // TODO need to be response for only admin
   @Get()
   async findAll(@Request() request) {
-    try {
-      this.logger.debug(`findAll`);
+    this.logger.debug(`findAll`);
 
-      const { user } = request;
-      this.logger.debug(`findAll::user: ${JSON.stringify(user, null, 2)}`);
+    const { user } = request;
+    this.logger.debug(`findAll::user: ${JSON.stringify(user, null, 2)}`);
 
-      const users = await this.findAllUserUseCase.execute();
-
-      return {
-        status: true,
-        users
-      };
-    } catch (error) {
-      this.logger.error('findAll::error', error);
-
-      throw error;
-    }
+    return {
+      users: await this.findAllUserUseCase.execute()
+    };
   }
 
   // TODO need to be response for a specific user or admin
@@ -76,30 +65,27 @@ export class UserController {
     @Param() findOneUserByIdDto: FindOneUserByIdDto,
     @Request() request
   ) {
-    try {
-      this.logger.debug(`findOne::findOneUserByIdDto: ${findOneUserByIdDto}`);
+    this.logger.debug(
+      `findOne::findOneUserByIdDto: ${JSON.stringify(
+        findOneUserByIdDto,
+        null,
+        2
+      )}`
+    );
 
-      const { user } = request;
+    const { user } = request;
 
-      if (user.id !== findOneUserByIdDto.id) {
-        throw new Error('You are not allowed to access this resource');
-      }
-
-      const foundUser = await this.findOneUserUseCase.execute(
-        findOneUserByIdDto
-      );
-
-      const { password, ...userWithoutPassword } = foundUser;
-
-      return {
-        status: true,
-        user: userWithoutPassword
-      };
-    } catch (error) {
-      this.logger.error('findOne::error', error);
-
-      throw error;
+    if (user.id !== findOneUserByIdDto.id) {
+      throw new Error('You are not allowed to access this resource');
     }
+
+    const foundUser = await this.findOneUserUseCase.execute(findOneUserByIdDto);
+
+    const { password, ...userWithoutPassword } = foundUser;
+
+    return {
+      user: userWithoutPassword
+    };
   }
 
   // TODO need to be response for a specific user or admin
@@ -108,38 +94,35 @@ export class UserController {
     @Param() findOneUserByIdDto: FindOneUserByIdDto,
     @Body() updateUserDto: UpdateUserDto
   ) {
-    try {
-      this.logger.debug(
-        `update::findOneUserByIdDto: ${findOneUserByIdDto} - updateUserDto: ${updateUserDto}`
-      );
+    this.logger.debug(
+      `update::findOneUserByIdDto: ${JSON.stringify(
+        findOneUserByIdDto,
+        null,
+        2
+      )} - updateUserDto: ${JSON.stringify(updateUserDto, null, 2)}`
+    );
 
-      await this.updateUserUseCase.execute(findOneUserByIdDto, updateUserDto);
-
-      return {
-        status: true
-      };
-    } catch (error) {
-      this.logger.error('update::error', error);
-
-      throw error;
-    }
+    return {
+      status: await this.updateUserUseCase.execute(
+        findOneUserByIdDto,
+        updateUserDto
+      )
+    };
   }
 
   // TODO need to be response for a specific user or admin
   @Delete(':id')
   async delete(@Param() findOneUserByIdDto: FindOneUserByIdDto) {
-    try {
-      this.logger.debug(`delete::findOneUserByIdDto: ${findOneUserByIdDto}`);
+    this.logger.debug(
+      `delete::findOneUserByIdDto: ${JSON.stringify(
+        findOneUserByIdDto,
+        null,
+        2
+      )}`
+    );
 
-      await this.deleteUserUseCase.execute(findOneUserByIdDto);
-
-      return {
-        status: true
-      };
-    } catch (error) {
-      this.logger.error('delete::error', error);
-
-      throw error;
-    }
+    return {
+      status: await this.deleteUserUseCase.execute(findOneUserByIdDto)
+    };
   }
 }
