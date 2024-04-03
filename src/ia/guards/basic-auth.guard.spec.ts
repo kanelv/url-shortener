@@ -4,13 +4,15 @@ import {
   Logger,
   UnauthorizedException
 } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 import { mockDataSource } from '../../../test/mock-database';
-import { AbstractUserRepository } from '../../domain/contracts/repositories';
+import { FindOneUserUseCase } from '../../application/use-cases/user';
 import { DatabaseModule } from '../../infra/frameworks/database/database.module';
+import { UseCasesProxyModule } from '../../infra/use-cases-proxy/use-cases-proxy.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { BasicAuthGuard } from './basic-auth.guard';
 
@@ -18,7 +20,7 @@ describe('BasicAuthGuard', () => {
   let dataSource: DataSource;
   let module: TestingModule;
   let basicAuthGuard: BasicAuthGuard;
-  let userRepository: AbstractUserRepository;
+  let findOneUserUseCase: FindOneUserUseCase;
 
   beforeEach(async () => {
     dataSource = await mockDataSource();
@@ -28,8 +30,26 @@ describe('BasicAuthGuard', () => {
         ConfigModule.forRoot({
           envFilePath: '.env.test'
         }),
+        JwtModule.registerAsync({
+          global: true,
+          imports: [ConfigModule],
+          useFactory: async (configService: ConfigService) => {
+            const options: JwtModuleOptions = {
+              secret: configService.get('JWT_SECRET_KEY'),
+              signOptions: {
+                expiresIn: configService.get('JWT_TOKEN_EXPIRES_IN', '120s'),
+                issuer: 'Kane Inc.'
+                // algorithm: 'RS256'
+              }
+            };
+
+            return options;
+          },
+          inject: [ConfigService]
+        }),
         DatabaseModule,
-        RepositoriesModule
+        RepositoriesModule,
+        UseCasesProxyModule.register()
       ],
       providers: [BasicAuthGuard, Reflector]
     })
@@ -39,7 +59,7 @@ describe('BasicAuthGuard', () => {
       .compile();
 
     basicAuthGuard = module.get<BasicAuthGuard>(BasicAuthGuard);
-    userRepository = module.get<AbstractUserRepository>(AbstractUserRepository);
+    findOneUserUseCase = module.get<FindOneUserUseCase>(FindOneUserUseCase);
   });
 
   afterEach(async () => {
@@ -62,7 +82,7 @@ describe('BasicAuthGuard', () => {
         })
       });
 
-      jest.spyOn(userRepository, 'findOne').mockReturnValue(
+      jest.spyOn(findOneUserUseCase, 'execute').mockReturnValue(
         Promise.resolve({
           id: 1,
           username: 'admin',
@@ -87,8 +107,9 @@ describe('BasicAuthGuard', () => {
           })
         })
       });
+
       jest
-        .spyOn(userRepository, 'findOne')
+        .spyOn(findOneUserUseCase, 'execute')
         .mockRejectedValueOnce(new Error(`User not found`));
 
       await expect(

@@ -7,14 +7,14 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { AbstractUserRepository } from '../../domain/contracts/repositories';
+import { FindOneUserUseCase } from '../../application/use-cases/user';
 import { IS_PUBLIC_KEY } from './public';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly userRepository: AbstractUserRepository
+    private readonly findOneUserUseCase: FindOneUserUseCase
   ) {}
 
   private readonly logger = new Logger(BasicAuthGuard.name);
@@ -55,7 +55,9 @@ export class BasicAuthGuard implements CanActivate {
     }
 
     try {
-      const user = await this.userRepository.findOne({ userName: userName });
+      const user = await this.findOneUserUseCase.execute({
+        userName: userName
+      });
 
       if (!user || user.password !== password) {
         throw new UnauthorizedException('username or password is incorrect');
