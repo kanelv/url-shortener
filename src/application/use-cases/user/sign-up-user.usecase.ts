@@ -33,7 +33,7 @@ export class SignUpUserUseCase {
       createOneUser.password
     );
 
-    return await this.userRepository.add({
+    return await this.userRepository.create({
       userName: createOneUser.userName,
       password: encryptedPassword
     });

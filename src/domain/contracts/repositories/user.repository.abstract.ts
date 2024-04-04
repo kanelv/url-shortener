@@ -22,7 +22,7 @@ export type FindOneUser = {
 };
 
 export abstract class AbstractUserRepository implements IRepository {
-  abstract add(createOneUser: CreateOneUser): Promise<any>;
+  abstract create(createOneUser: CreateOneUser): Promise<any>;
   abstract findAll(): Promise<any[]>;
   abstract findOne(findOneUser: FindOneUser): Promise<any>;
   abstract updateOne(updateOneUser: UpdateOneUser): Promise<any>;

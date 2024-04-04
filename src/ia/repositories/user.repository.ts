@@ -18,7 +18,7 @@ export class UserRepository implements AbstractUserRepository {
 
   private readonly logger = new Logger(UserRepository.name);
 
-  async add(createOneUser: CreateOneUser): Promise<any> {
+  async create(createOneUser: CreateOneUser): Promise<any> {
     const newUser = this.userRepository.create(createOneUser);
     this.logger.debug(`create::newUser: ${JSON.stringify(newUser, null, 2)}`);
 

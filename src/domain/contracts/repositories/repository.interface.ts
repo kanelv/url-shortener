@@ -8,7 +8,7 @@ export type UrlFindOneBy = {
 };
 
 export interface IRepository {
-  add(object: any): Promise<any>;
+  create(object: any): Promise<any>;
   findAll(): Promise<any[]>;
   findOne(object: any): Promise<any>;
   isExist(object: any): Promise<any>;

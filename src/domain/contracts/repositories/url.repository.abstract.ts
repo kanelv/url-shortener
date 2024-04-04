@@ -17,7 +17,7 @@ export type FindOneUrl = {
 };
 
 export abstract class AbstractUrlRepository implements IRepository {
-  abstract add(createOneUrl: CreateOneUrl): Promise<any>;
+  abstract create(createOneUrl: CreateOneUrl): Promise<any>;
   abstract findAll(): Promise<any[]>;
   abstract findOne(findOneUrl: FindOneUrl): Promise<any>;
   abstract deleteOne(findOneUrl: FindOneUrl): Promise<any>;

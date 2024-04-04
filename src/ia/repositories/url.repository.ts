@@ -18,7 +18,7 @@ export class UrlRepository implements AbstractUrlRepository {
 
   private readonly logger = new Logger(UrlRepository.name);
 
-  async add(createOneUrl: CreateOneUrl): Promise<any> {
+  async create(createOneUrl: CreateOneUrl): Promise<any> {
     const newUrl = this.urlRepository.create(createOneUrl);
 
     const insertResult: InsertResult = await this.urlRepository.insert(newUrl);
