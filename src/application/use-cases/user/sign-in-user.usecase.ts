@@ -17,6 +17,13 @@ export type SignIn = {
 };
 
 export class SignInUserUseCase {
+  /**
+   * Constructs a new SignInUserUseCase with the provided dependencies.
+   *
+   * @param {AbstractUserRepository} userRepository - The repository used to interact with the user data.
+   * @param {AbstractBcryptService} bcryptService - The service used to hash and compare passwords.
+   * @param {JwtService} jwtService - The service used to generate JSON Web Tokens.
+   */
   constructor(
     private readonly userRepository: AbstractUserRepository,
     private readonly bcryptService: AbstractBcryptService,
@@ -46,11 +53,16 @@ export class SignInUserUseCase {
       )}`
     );
 
-    if (
-      !foundUser ||
-      !this.bcryptService.compare(signIn.password, foundUser.password) ||
-      !foundUser.isActive
-    ) {
+    if (!foundUser || !foundUser.isActive) {
+      throw new UnauthorizedException();
+    }
+
+    const isPasswordCorrect = await this.bcryptService.compare(
+      signIn.password,
+      foundUser.password
+    );
+
+    if (!isPasswordCorrect) {
       throw new UnauthorizedException();
     }
 
