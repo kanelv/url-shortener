@@ -10,7 +10,9 @@ export class DeleteUrlUseCase {
   private readonly logger = new Logger(DeleteUrlUseCase.name);
 
   async execute(findOneUrl: FindOneUrl): Promise<boolean> {
-    this.logger.debug(`execute::findOneUrl: ${findOneUrl}`);
+    this.logger.debug(
+      `execute::findOneUrl: ${JSON.stringify(findOneUrl, null, 2)}`
+    );
 
     const isExist = await this.urlRepository.isExist(findOneUrl);
 

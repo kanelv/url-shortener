@@ -10,7 +10,9 @@ export class DeleteUserUseCase {
   private readonly logger = new Logger(DeleteUserUseCase.name);
 
   async execute(findOneUser: FindOneUser): Promise<boolean> {
-    this.logger.debug(`execute::findOneUser: ${findOneUser}`);
+    this.logger.debug(
+      `execute::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
+    );
 
     const isExist = await this.userRepository.isExist(findOneUser);
 

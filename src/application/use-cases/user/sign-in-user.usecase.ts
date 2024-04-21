@@ -33,7 +33,7 @@ export class SignInUserUseCase {
   private readonly logger = new Logger(SignInUserUseCase.name);
 
   async execute(signIn: SignIn): Promise<any> {
-    this.logger.debug(`execute::signIn: ${signIn}`);
+    this.logger.debug(`execute::signIn: ${JSON.stringify(signIn, null, 2)}`);
 
     const foundUser = await this.userRepository.findOne({
       userName: signIn.userName
@@ -44,13 +44,6 @@ export class SignInUserUseCase {
     }
     this.logger.debug(
       `execute::foundUser: ${JSON.stringify(foundUser, null, 2)}`
-    );
-
-    this.logger.debug(
-      `execute::compareSync(password, foundUser.password): ${this.bcryptService.compare(
-        signIn.password,
-        foundUser.password
-      )}`
     );
 
     if (!foundUser || !foundUser.isActive) {
