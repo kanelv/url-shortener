@@ -22,21 +22,21 @@ export async function setUpApplication(app: INestApplication): Promise<void> {
     })
   );
 
-  // Uncomment this line if you find a way to make it work on Amazon API Gateway
-  // app.use(compression());
-
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1'
   });
 
   const config = new DocumentBuilder()
-    .setTitle('BidderForJEPX APIs')
-    .setDescription('The BidderForJEPX API description')
+    .setTitle('URLShortener APIs')
+    .setDescription('The URLShortener API description')
     .setVersion('1.0')
-    .addTag('bidders-for-jepx')
+    .addTag('url-shortener')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  // Uncomment this line if you find a way to make it work on Amazon API Gateway
+  // app.use(compression());
 }

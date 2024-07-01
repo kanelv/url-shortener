@@ -11,6 +11,7 @@ jobs:
           POSTGRES_DB: url-shortener
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_SCHEMA: test
           # TZ: 'GMT+7'
           # PGTZ: 'GMT+7'
     parallelism: 5
@@ -18,7 +19,7 @@ jobs:
       NODE_ENV: test
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/url-shortener?schema=public&connection_limit=2
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/url-shortener?schema=test&connection_limit=2
       JWT_PRIVATE_KEY: src/certs/jwt/private.pem
       JWT_PUBLIC_KEY: src/certs/jwt/public.pem
       MEMBER_EXPIRES_IN: 30d
