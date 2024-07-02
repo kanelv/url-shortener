@@ -41,10 +41,10 @@ jobs:
           app-dir: ./
           cache-path: ./node_modules
           override-ci-command: yarn install
-      - run:
-          name: Run Migration
-          command: yarn migration:up
-          working_directory: ./
+      # - run:
+      #     name: Run Migration
+      #     command: yarn migration:up
+      #     working_directory: ./
       - run:
           command: yarn test
           working_directory: ./
