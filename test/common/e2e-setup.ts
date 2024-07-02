@@ -6,7 +6,7 @@ import { DataSource } from 'typeorm';
 import { ControllersModule } from '../../src/ia/controllers/controllers.module';
 import { RepositoriesModule } from '../../src/ia/repositories/repositories.module';
 import { DatabaseModule } from '../../src/infra/frameworks/database/database.module';
-import { mockDataSource } from '../mock-database';
+import { mockDataSource } from '../mock-data-source';
 
 export async function e2eSetup() {
   const dataSource = await mockDataSource();

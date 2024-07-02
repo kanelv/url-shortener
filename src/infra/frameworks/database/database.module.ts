@@ -19,7 +19,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
         namingStrategy: new SnakeNamingStrategy(),
         synchronize: false,
         autoLoadEntities: true,
-        logging: true
+        logging: ['query', 'error']
       })
     })
   ]

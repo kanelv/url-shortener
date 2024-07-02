@@ -24,34 +24,34 @@ export class UpdateUserUseCase {
     updateUserDto: UpdateUserDto
   ): Promise<boolean> {
     this.logger.debug(
-      `execute::findOneUser: ${findOneUser} - updateUserDto: ${JSON.stringify(
-        updateUserDto,
+      `execute::findOneUser: ${JSON.stringify(
+        findOneUser,
         null,
         2
-      )}`
+      )} - updateUserDto: ${JSON.stringify(updateUserDto, null, 2)}`
     );
 
-    const isExist = await this.userRepository.isExist(findOneUser);
+    // The following code will be considered when we apply role-based access control
+    // const user = await this.userRepository.findOne({ id: 1 });
+    // this.logger.debug(`execute::user: ${JSON.stringify(user, null, 2)}`);
 
-    if (isExist) {
-      const { password, ...remainUserDetail } = updateUserDto;
+    // TODO: check if the user is exist or not
 
-      let encryptedPassword = null;
+    const { password, ...remainUserDetail } = updateUserDto;
 
-      if (password) {
-        encryptedPassword = await this.bcryptService.hash(password);
-      }
+    let encryptedPassword = null;
 
-      const handledUpdateUser = encryptedPassword
-        ? { password: encryptedPassword, ...remainUserDetail }
-        : { ...remainUserDetail };
-
-      return this.userRepository.updateOne({
-        findOneUser,
-        updateUser: handledUpdateUser
-      });
-    } else {
-      return false;
+    if (password) {
+      encryptedPassword = await this.bcryptService.hash(password);
     }
+
+    const handledUpdateUser = encryptedPassword
+      ? { password: encryptedPassword, ...remainUserDetail }
+      : { ...remainUserDetail };
+
+    return this.userRepository.updateOne({
+      findOneUser,
+      updateUser: handledUpdateUser
+    });
   }
 }

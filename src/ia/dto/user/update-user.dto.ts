@@ -4,21 +4,21 @@ import { Role } from '../../../domain/entities/enums/role.enum';
 export class UpdateUserDto {
   @IsString()
   @IsOptional()
-  readonly userName: string;
+  readonly userName?: string;
 
   @IsString()
   @IsOptional()
-  readonly email: string;
+  readonly email?: string;
 
   @IsString()
   @IsOptional()
-  readonly password: string;
+  readonly password?: string;
 
   @IsEnum(Role)
   @IsOptional()
-  readonly role: Role;
+  readonly role?: Role;
 
   @IsBoolean()
   @IsOptional()
-  readonly isActive: boolean;
+  readonly isActive?: boolean;
 }

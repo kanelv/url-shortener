@@ -1,4 +1,4 @@
-import { newDb, DataType } from 'pg-mem';
+import { DataType, newDb } from 'pg-mem';
 import { DataSource } from 'typeorm';
 
 export const mockDataSource: () => Promise<DataSource> = async () => {
@@ -26,6 +26,8 @@ export const mockDataSource: () => Promise<DataSource> = async () => {
   // Define the exists(integer[]) function
   function exists(arr) {
     // Check if the array is not null and has at least one element
+    console.log('arr', arr);
+
     return arr != null && arr.length > 0;
   }
 

@@ -9,7 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
-import { mockDataSource } from '../../../test/mock-database';
+import { mockDataSource } from '../../../test/mock-data-source';
 import { FindOneUserUseCase } from '../../application/use-cases/user';
 import { DatabaseModule } from '../../infra/frameworks/database/database.module';
 import { UseCasesProxyModule } from '../../infra/use-cases-proxy/use-cases-proxy.module';

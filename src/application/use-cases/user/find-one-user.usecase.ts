@@ -7,6 +7,10 @@ export class FindOneUserUseCase {
   constructor(private readonly userRepository: AbstractUserRepository) {}
 
   async execute(findOneUser: FindOneUser): Promise<any> {
-    return await this.userRepository.findOne(findOneUser);
+    const foundUser = await this.userRepository.findOne(findOneUser);
+
+    const { password, ...userWithoutPassword } = foundUser;
+
+    return userWithoutPassword;
   }
 }

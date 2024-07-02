@@ -42,7 +42,7 @@ export class UserController {
     );
 
     return {
-      user: await this.signUpUserUseCase.execute(signUpUserDto)
+      data: await this.signUpUserUseCase.execute(signUpUserDto)
     };
   }
 
@@ -55,7 +55,7 @@ export class UserController {
     this.logger.debug(`findAll::user: ${JSON.stringify(user, null, 2)}`);
 
     return {
-      users: await this.findAllUserUseCase.execute()
+      data: await this.findAllUserUseCase.execute()
     };
   }
 
@@ -73,18 +73,15 @@ export class UserController {
       )}`
     );
 
-    const { user } = request;
+    // TODO: these commented commands below is to consider result by role
+    // const { user } = request;
 
-    if (user.id !== findOneUserByIdDto.id) {
-      throw new Error('You are not allowed to access this resource');
-    }
-
-    const foundUser = await this.findOneUserUseCase.execute(findOneUserByIdDto);
-
-    const { password, ...userWithoutPassword } = foundUser;
+    // if (user.id !== findOneUserByIdDto.id) {
+    //   throw new Error('You are not allowed to access this resource');
+    // }
 
     return {
-      user: userWithoutPassword
+      data: await this.findOneUserUseCase.execute(findOneUserByIdDto)
     };
   }
 
@@ -103,7 +100,7 @@ export class UserController {
     );
 
     return {
-      status: await this.updateUserUseCase.execute(
+      data: await this.updateUserUseCase.execute(
         findOneUserByIdDto,
         updateUserDto
       )
@@ -122,7 +119,7 @@ export class UserController {
     );
 
     return {
-      status: await this.deleteUserUseCase.execute(findOneUserByIdDto)
+      data: await this.deleteUserUseCase.execute(findOneUserByIdDto)
     };
   }
 }

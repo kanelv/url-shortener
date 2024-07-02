@@ -64,6 +64,10 @@ export class UrlRepository implements AbstractUrlRepository {
   async isExist(
     conditions: Partial<Omit<UrlEntity, 'user'> & { id: number }>
   ): Promise<boolean> {
+    this.logger.debug(
+      `isExist::conditions: ${JSON.stringify(conditions, null, 2)}`
+    );
+
     return this.urlRepository.exists({
       where: conditions
     });

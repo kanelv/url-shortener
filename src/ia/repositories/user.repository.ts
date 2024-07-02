@@ -9,6 +9,7 @@ import {
 } from '../../domain/contracts/repositories';
 import { User as UserEntity } from '../../domain/entities';
 import { User } from '../../infra/frameworks/database/entities';
+import { OmitProperties } from '../../utils';
 
 export class UserRepository implements AbstractUserRepository {
   constructor(
@@ -19,7 +20,7 @@ export class UserRepository implements AbstractUserRepository {
   private readonly logger = new Logger(UserRepository.name);
 
   async create(createOneUser: CreateOneUser): Promise<any> {
-    const newUser = this.userRepository.create(createOneUser);
+    const newUser: User = this.userRepository.create(createOneUser);
     this.logger.debug(`create::newUser: ${JSON.stringify(newUser, null, 2)}`);
 
     const insertResult: InsertResult = await this.userRepository.insert(
@@ -32,14 +33,16 @@ export class UserRepository implements AbstractUserRepository {
     return insertResult.identifiers[0];
   }
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<OmitProperties<User, 'password'>[]> {
     const users: User[] = await this.userRepository.find();
     this.logger.debug(`findAll::users: ${JSON.stringify(users, null, 2)}`);
 
-    const handledUsers = users.map((user) => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    });
+    const handledUsers: OmitProperties<User, 'password'>[] = users.map(
+      (user) => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      }
+    );
     this.logger.debug(
       `findAll::handledUsers: ${JSON.stringify(handledUsers, null, 2)}`
     );
@@ -48,7 +51,7 @@ export class UserRepository implements AbstractUserRepository {
   }
 
   // TODO: need to be updated return type
-  async findOne(findOneUser: FindOneUser): Promise<any> {
+  async findOne(findOneUser: FindOneUser): Promise<User> {
     this.logger.debug(
       `findOne::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
     );
@@ -56,7 +59,6 @@ export class UserRepository implements AbstractUserRepository {
     const passiveUser: User = await this.userRepository.findOne({
       where: findOneUser
     });
-
     this.logger.debug(
       `findOne::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
     );
@@ -65,9 +67,7 @@ export class UserRepository implements AbstractUserRepository {
       throw new Error(`Not found User has ${findOneUser}`);
     }
 
-    const { createdAt, updatedAt, ...result } = passiveUser;
-
-    return result;
+    return passiveUser;
   }
 
   async updateOne({
@@ -104,7 +104,10 @@ export class UserRepository implements AbstractUserRepository {
   async isExist(
     conditions: Partial<Omit<UserEntity, 'urls'> & { id: number }>
   ): Promise<boolean> {
-    return this.userRepository.exists({
+    this.logger.debug(
+      `isExist::conditions: ${JSON.stringify(conditions, null, 2)}`
+    );
+    return await this.userRepository.exists({
       where: conditions
     });
   }

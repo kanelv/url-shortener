@@ -21,38 +21,32 @@ export class AuthController {
   @Public()
   @Post('sign-in')
   async signInByBodyData(@Body() signInUserDto: SignInUserDto) {
-    try {
-      this.logger.debug('signInByBodyData::signInUserDto: ', signInUserDto);
+    this.logger.debug(
+      `signInByBodyData::signInUserDto: ${JSON.stringify(
+        signInUserDto,
+        null,
+        2
+      )}`
+    );
 
-      const accessToken = await this.signInUserUseCase.execute(signInUserDto);
+    const accessToken = await this.signInUserUseCase.execute(signInUserDto);
 
-      return {
-        accessToken
-      };
-    } catch (error) {
-      this.logger.error(error);
-
-      throw error;
-    }
+    return {
+      data: accessToken
+    };
   }
 
   @UseGuards(BasicAuthGuard)
   @Get('sign-in')
   async signInByBasicAuth(@Request() req) {
-    try {
-      this.logger.debug(
-        `signInByBasicAuth: ${JSON.stringify(req.user, null, 2)}`
-      );
+    this.logger.debug(
+      `signInByBasicAuth: ${JSON.stringify(req.user, null, 2)}`
+    );
 
-      const accessToken = await this.signInUserUseCase.execute(req?.user);
+    const accessToken = await this.signInUserUseCase.execute(req?.user);
 
-      return {
-        accessToken
-      };
-    } catch (error) {
-      this.logger.error(error);
-
-      throw error;
-    }
+    return {
+      data: accessToken
+    };
   }
 }

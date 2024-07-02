@@ -2,20 +2,26 @@ import { INestApplication } from '@nestjs/common';
 import { TestingModule } from '@nestjs/testing';
 import MockDate from 'mockdate';
 import request from 'supertest';
-import { SignUpUserDto } from '../src/ia/dto/user';
+import {
+  AbstractUserRepository,
+  CreateOneUser
+} from '../src/domain/contracts/repositories';
+import { Role } from '../src/domain/entities/enums';
+import { SignUpUserDto, UpdateUserDto } from '../src/ia/dto/user';
 import { e2eSetup } from './common/e2e-setup';
 import { e2eTearDown } from './common/e2e-tear-down';
 
 describe('User (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
-
-  // jest.setTimeout(20000);
+  let userRepository: AbstractUserRepository;
 
   beforeEach(async () => {
     const setup = await e2eSetup();
     module = setup.module;
     app = setup.app;
+
+    userRepository = module.get<AbstractUserRepository>(AbstractUserRepository);
   });
 
   afterEach(async () => {
@@ -42,7 +48,7 @@ describe('User (e2e)', () => {
         .expect(201);
 
       expect(response.body).toEqual({
-        user: {
+        data: {
           id: 1
         }
       });
@@ -69,8 +75,20 @@ describe('User (e2e)', () => {
   });
 
   describe('GET /v1/users', () => {
-    it('returns statusCode 200 and data when successfully submitting', async () => {
+    it('should return 200 OK and data when successfully requesting', async () => {
       MockDate.set('2024-03-26T03:03:00.000');
+
+      const createOneUser1: CreateOneUser = {
+        userName: 'sample1',
+        password: 'sample1'
+      };
+      const createOneUser2: CreateOneUser = {
+        userName: 'sample2',
+        password: 'sample2'
+      };
+
+      await userRepository.create(createOneUser1);
+      await userRepository.create(createOneUser2);
 
       const response = await request(app.getHttpServer())
         .get(`/v1/users`)
@@ -80,13 +98,141 @@ describe('User (e2e)', () => {
         )
         .expect(200);
 
-      expect(response.body).toEqual({ users: [] });
+      expect(response.body).toEqual({
+        data: [
+          {
+            createdAt: expect.any(String),
+            email: null,
+            id: expect.any(Number),
+            isActive: true,
+            role: 'user',
+            updatedAt: expect.any(String),
+            userName: 'sample1'
+          },
+          {
+            createdAt: expect.any(String),
+            email: null,
+            id: expect.any(Number),
+            isActive: true,
+            role: 'user',
+            updatedAt: expect.any(String),
+            userName: 'sample2'
+          }
+        ]
+      });
     });
   });
 
-  // describe('GET /v1/users/:id', () => {});
+  describe('GET /v1/users/:id', () => {
+    it('should return 200 OK and data when successfully requesting', async () => {
+      MockDate.set('2024-03-26T03:03:00.000');
 
-  // describe('PATCH /v1/users/:id', () => {});
+      const createOneUser1: CreateOneUser = {
+        userName: 'sample1',
+        password: 'sample1'
+      };
+
+      const createdResult = await userRepository.create(createOneUser1);
+
+      const response = await request(app.getHttpServer())
+        .get(`/v1/users/${createdResult.id}`)
+        .set(
+          'Authorization',
+          `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
+        )
+        .expect(200);
+
+      expect(response.body).toEqual({
+        data: {
+          createdAt: expect.any(String),
+          email: null,
+          id: expect.any(Number),
+          isActive: true,
+          role: 'user',
+          updatedAt: expect.any(String),
+          userName: 'sample1'
+        }
+      });
+    });
+
+    it('should return 400 Bad Request and data when successfully requesting', async () => {
+      MockDate.set('2024-03-26T03:03:00.000');
+
+      const createOneUser1: CreateOneUser = {
+        userName: 'sample1',
+        password: 'sample1'
+      };
+
+      const createdResult = await userRepository.create(createOneUser1);
+
+      const response = await request(app.getHttpServer())
+        .get(`/v1/users/${createdResult.id}`)
+        .set(
+          'Authorization',
+          `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
+        )
+        .expect(200);
+
+      expect(response.body).toEqual({
+        data: {
+          createdAt: expect.any(String),
+          email: null,
+          id: expect.any(Number),
+          isActive: true,
+          role: 'user',
+          updatedAt: expect.any(String),
+          userName: 'sample1'
+        }
+      });
+    });
+  });
+
+  describe('PATCH /v1/users/:id', () => {
+    it('returns 200 OK and data when successfully requesting', async () => {
+      MockDate.set('2024-03-26T03:03:00.000');
+
+      const createOneUser1: CreateOneUser = {
+        userName: 'sample1',
+        password: 'sample1'
+      };
+      const createdResult = await userRepository.create(createOneUser1);
+
+      console.log(
+        `userRepository.findAll(): ${JSON.stringify(
+          await userRepository.findAll(),
+          null,
+          2
+        )}`
+      );
+
+      console.log(
+        `userRepository.isExist(): ${JSON.stringify(
+          await userRepository.isExist({
+            id: createdResult.id
+          }),
+          null,
+          2
+        )}`
+      );
+
+      const updateOneUser: UpdateUserDto = {
+        email: 'sample1@gmail.com',
+        role: Role.Admin
+      };
+      const response = await request(app.getHttpServer())
+        .patch(`/v1/users/${createdResult.id}`)
+        .send(updateOneUser)
+        .set(
+          'Authorization',
+          `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
+        )
+        .expect(200);
+
+      expect(response.body).toEqual({
+        data: true
+      });
+    });
+  });
 
   // describe('DELETE /v1/users/:id', () => {});
 });

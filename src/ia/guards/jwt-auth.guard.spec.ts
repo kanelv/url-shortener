@@ -10,7 +10,7 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import MockDate from 'mockdate';
 import { DataSource } from 'typeorm';
-import { mockDataSource } from '../../../test/mock-database';
+import { mockDataSource } from '../../../test/mock-data-source';
 import { AbstractUserRepository } from '../../domain/contracts/repositories';
 import { DatabaseModule } from '../../infra/frameworks/database/database.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
