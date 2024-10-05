@@ -1,20 +1,25 @@
 # Plan
 
 ## What did I do next:
+
 ### Backend
 1. clear database design, relation between url and user
 2. clear role in the system, guess vs signed-in user
 3. apply clean-architecture => in progress
 - check where JwtModule is placed
 - 
-4. setup circle-ci for unit test
-5. how to automatically delete record on postgresql at an expected time
-  5.5 will delete when we found that an shortened link requested by an user has expired
-  5.1 using `pg_cron` extension
-  5.2 using `pgAgent` extension
-  5.3 using `pg_schedule` extension
-  5.4 using `pg_timetable` extension
+4. setup circle-ci for unit test => OK
 
+5. 
+  5.1 1st Option: how to automatically delete record on postgresql at an expected time
+  will delete when we found that an shortened link requested by an user has expired
+  - using `pg_cron` extension
+  - using `pgAgent` extension
+  - using `pg_schedule` extension
+  - using `pg_timetable` extension
+  5.2 2nd Option: 
+  - expose an endpoint to list all expired links and delete them
+  - implement a simple batch job to send request to the endpoint above
 ### Frontend
 1. using gatsby to implement UI
 2. base UI to short a link
