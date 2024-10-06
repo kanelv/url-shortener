@@ -10,7 +10,7 @@ import {
 import { SignInUserUseCase } from '../../application/use-cases/user/sign-in-user.usecase';
 import { SignInUserDto } from '../dto/user/sign-in-user.dto';
 import { BasicAuthGuard } from '../guards/basic-auth.guard';
-import { Public } from '../guards/public';
+import { Public } from '../guards/public.decorator';
 
 @Controller('auth')
 export class AuthController {

@@ -19,7 +19,7 @@ import {
 } from '../../application/use-cases/user';
 import { FindOneUserByIdDto, SignUpUserDto, UpdateUserDto } from '../dto/user';
 import { JwtAuthGuard } from '../guards';
-import { Public } from '../guards/public';
+import { Public } from '../guards/public.decorator';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)

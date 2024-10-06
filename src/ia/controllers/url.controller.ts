@@ -22,7 +22,7 @@ import { FindOneUrlByIdDto } from '../dto/url/find-one-url-by-id.dto';
 import { FindOneUrlByUrlCodeDto } from '../dto/url/find-one-url-by-url-code.dto';
 import { ShortenURLDto } from '../dto/url/shorten-url.dto';
 import { JwtAuthGuard } from '../guards';
-import { Public } from '../guards/public';
+import { Public } from '../guards/public.decorator';
 
 @Controller('urls')
 @UseGuards(JwtAuthGuard)

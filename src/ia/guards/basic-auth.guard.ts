@@ -8,7 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { FindOneUserUseCase } from '../../application/use-cases/user';
-import { IS_PUBLIC_KEY } from './public';
+import { IS_PUBLIC_KEY } from './public.decorator';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
