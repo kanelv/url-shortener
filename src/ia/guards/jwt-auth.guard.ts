@@ -37,12 +37,11 @@ export class JwtAuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    this.validateAuthorizationHeader(request);
-
-    const token = this.extractTokenFromHeader(request);
+    // Extract the token from cookies
+    const token = this.extractTokenFromCookie(request);
 
     if (!token) {
-      throw new UnauthorizedException('Not found token in the request header');
+      throw new UnauthorizedException('Token not found in request');
     }
 
     try {
@@ -71,27 +70,7 @@ export class JwtAuthGuard implements CanActivate {
     return true;
   }
 
-  private validateAuthorizationHeader(request: Request): void {
-    // check if authorization header is set
-    if (!request.headers || !request.headers.authorization) {
-      throw new UnauthorizedException('Authorization header is missing');
-    }
-
-    // check if authorization header is set only once
-    if (
-      request.headers &&
-      request.headers.authorization &&
-      Array.isArray(request.headers.authorization)
-    ) {
-      throw new UnauthorizedException(
-        'Authorization header should be set only once in the request'
-      );
-    }
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-
-    return type === 'Bearer' ? token : undefined;
+  private extractTokenFromCookie(request: Request): string | undefined {
+    return request.cookies?.jwt; // Assuming the JWT is stored in a cookie named 'jwt'
   }
 }

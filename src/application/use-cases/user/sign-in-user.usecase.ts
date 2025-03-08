@@ -59,6 +59,7 @@ export class SignInUserUseCase {
       throw new UnauthorizedException();
     }
 
+    // TODO: add expiration for generated token
     const payload = {
       sub: foundUser.id,
       userName: foundUser.userName,

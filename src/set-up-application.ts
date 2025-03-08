@@ -4,6 +4,7 @@ import {
   VersioningType
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 export async function setUpApplication(app: INestApplication): Promise<void> {
   app.enableCors({
@@ -21,6 +22,8 @@ export async function setUpApplication(app: INestApplication): Promise<void> {
       // disableErrorMessages: true,
     })
   );
+
+  app.use(cookieParser());
 
   app.enableVersioning({
     type: VersioningType.URI,

@@ -22,7 +22,7 @@ export class ShortenUrlUseCase {
 
       //return it if it exists
       if (shortenedUrl) {
-        // return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${
+        // return `${this.configService.get('URL_SHORTENER_URL')}/url/${
         //   url.urlCode
         // }`;
         return shortenedUrl.urlCode;
@@ -33,7 +33,7 @@ export class ShortenUrlUseCase {
 
       await this.urlRepository.create(createOneUrl);
 
-      // return `${this.configService.get('URL_SHORTENER_DOMAIN')}/url/${urlCode}`;
+      // return `${this.configService.get('URL_SHORTENER_URL')}/url/${urlCode}`;
 
       return urlCode;
     } catch (error) {

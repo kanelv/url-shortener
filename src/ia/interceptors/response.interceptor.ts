@@ -2,22 +2,44 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
+  constructor(private readonly configService: ConfigService) {}
+
+  private readonly logger = new Logger(ResponseInterceptor.name);
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const statusCode = context.switchToHttp().getResponse().statusCode;
+    const response = context.switchToHttp().getResponse();
+    const statusCode = response.statusCode;
+
     return next.handle().pipe(
-      map((data) => ({
-        statusCode,
-        message: 'Success',
-        data,
-        timestamp: new Date().toISOString()
-      }))
+      map((data) => {
+        // Set the cookie if accessToken is present in the response data
+        if (data?.accessToken && data?.cookieOptions) {
+          response.cookie('jwt', data.accessToken, data.cookieOptions);
+          delete data.accessToken; // Remove token from response body
+          delete data.cookieOptions; // Remove cookieOptions from response body
+        }
+
+        const message = data?.message || 'Success';
+        if (message) {
+          delete data.message;
+        }
+
+        return {
+          statusCode,
+          message,
+          data,
+          timestamp: new Date().toISOString()
+        };
+      })
     );
   }
 }
