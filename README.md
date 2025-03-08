@@ -10,6 +10,25 @@ An URL-Shortener API app using NestJS that is a framework based on typescript
 yarn install
 ```
 
+## Database
+
+### Migration
+
+To generate new migration.sql script for new changes on database schema
+```bash
+npm run migration:generate src/core/database/migrations/<name_of_new_changes>
+```
+
+To apply new change on database
+```bash
+npm run migration:up
+```
+
+To rollback to previouse schema
+```bash
+npm run migration:down
+```
+
 ## Running the app
 
 ```bash
@@ -47,12 +66,6 @@ circleci local execute build-and-test
 ```bash
 ssh -i /path/to/id_rsa user@server.nixcraft.com
 ssh -i ~/.ssh/id_ed25519_kanelv -p 64535 34.227.75.120
-```
-
-## Database Migration
-
-```bash
-npm run migration:generate src/core/database/migrations/init
 ```
 
 ## References

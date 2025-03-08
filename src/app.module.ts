@@ -5,6 +5,8 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import fs from 'fs';
 import path from 'path';
 import { ControllersModule } from './ia/controllers/controllers.module';
+import { JwtAuthGuard } from './ia/guards';
+import { RolesGuard } from './ia/guards/roles.guard';
 import { DatabaseModule } from './infra/frameworks/database/database.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
 
@@ -54,6 +56,16 @@ import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
     DatabaseModule,
     ControllersModule,
     BcryptModule
+  ],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: JwtAuthGuard
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard
+    }
   ]
 })
 export class AppModule {}

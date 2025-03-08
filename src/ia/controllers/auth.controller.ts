@@ -18,6 +18,7 @@ export class AuthController {
 
   private readonly logger = new Logger(AuthController.name);
 
+  // For sending user/password in body json data
   @Public()
   @Post('sign-in')
   async signInByBodyData(@Body() signInUserDto: SignInUserDto) {
@@ -36,6 +37,7 @@ export class AuthController {
     };
   }
 
+  // For sending user/password in request.headers.authorization
   @UseGuards(BasicAuthGuard)
   @Get('sign-in')
   async signInByBasicAuth(@Request() req) {
@@ -43,7 +45,7 @@ export class AuthController {
       `signInByBasicAuth: ${JSON.stringify(req.user, null, 2)}`
     );
 
-    const accessToken = await this.signInUserUseCase.execute(req?.user);
+    const accessToken = await this.signInUserUseCase.execute(req.user);
 
     return {
       data: accessToken

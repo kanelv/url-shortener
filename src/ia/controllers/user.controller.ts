@@ -17,12 +17,15 @@ import {
   SignUpUserUseCase,
   UpdateUserUseCase
 } from '../../application/use-cases/user';
+import { Role } from '../../domain/entities/enums';
 import { FindOneUserByIdDto, SignUpUserDto, UpdateUserDto } from '../dto/user';
 import { JwtAuthGuard } from '../guards';
 import { Public } from '../guards/public.decorator';
+import { Roles } from '../guards/role.decorator';
+import { RolesGuard } from '../guards/roles.guard';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
   constructor(
     private readonly signUpUserUseCase: SignUpUserUseCase,
@@ -46,8 +49,13 @@ export class UserController {
     };
   }
 
-  // TODO need to be response for only admin
+  /**
+   * TODO need to be response for: only admin
+   * @param request
+   * @returns
+   */
   @Get()
+  @Roles(Role.Admin)
   async findAll(@Request() request) {
     this.logger.debug(`findAll`);
 
@@ -59,8 +67,16 @@ export class UserController {
     };
   }
 
-  // TODO need to be response for a specific user or admin
+  /**
+   * TODO: need to be response for: Admin, User
+   * - a signed user
+   * - admin
+   * @param findOneUserByIdDto
+   * @param request
+   * @returns
+   */
   @Get(':id')
+  @Roles(Role.User)
   async findOne(
     @Param() findOneUserByIdDto: FindOneUserByIdDto,
     @Request() request
@@ -85,8 +101,16 @@ export class UserController {
     };
   }
 
-  // TODO need to be response for a specific user or admin
+  /**
+   * TODO: need to be response for: Admin, User
+   * - a signed user
+   * - admin
+   * @param findOneUserByIdDto
+   * @param updateUserDto
+   * @returns
+   */
   @Patch(':id')
+  @Roles(Role.User)
   async update(
     @Param() findOneUserByIdDto: FindOneUserByIdDto,
     @Body() updateUserDto: UpdateUserDto
@@ -107,8 +131,15 @@ export class UserController {
     };
   }
 
-  // TODO need to be response for a specific user or admin
+  /**
+   * TODO: need to be response for: Admin, User
+   * - a signed user
+   * - admin
+   * @param findOneUserByIdDto
+   * @returns
+   */
   @Delete(':id')
+  @Roles(Role.User)
   async delete(@Param() findOneUserByIdDto: FindOneUserByIdDto) {
     this.logger.debug(
       `delete::findOneUserByIdDto: ${JSON.stringify(

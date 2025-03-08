@@ -62,7 +62,8 @@ export class SignInUserUseCase {
     const payload = {
       sub: foundUser.id,
       userName: foundUser.userName,
-      email: foundUser.email
+      email: foundUser.email,
+      roles: [foundUser.role]
     };
     this.logger.debug(`execute::payload: ${JSON.stringify(payload, null, 2)}`);
 

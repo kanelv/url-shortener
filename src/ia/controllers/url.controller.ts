@@ -7,8 +7,7 @@ import {
   Param,
   Post,
   Request,
-  Res,
-  UseGuards
+  Res
 } from '@nestjs/common';
 
 import {
@@ -18,14 +17,14 @@ import {
   ShortenUrlUseCase
 } from '../../application/use-cases/url';
 import { DeleteUrlUseCase } from '../../application/use-cases/url/delete-url.usecase';
+import { Role } from '../../domain/entities/enums';
 import { FindOneUrlByIdDto } from '../dto/url/find-one-url-by-id.dto';
 import { FindOneUrlByUrlCodeDto } from '../dto/url/find-one-url-by-url-code.dto';
 import { ShortenURLDto } from '../dto/url/shorten-url.dto';
-import { JwtAuthGuard } from '../guards';
 import { Public } from '../guards/public.decorator';
+import { Roles } from '../guards/role.decorator';
 
 @Controller('urls')
-@UseGuards(JwtAuthGuard)
 export class UrlController {
   deleteUserUseCase: any;
   constructor(
@@ -54,7 +53,14 @@ export class UrlController {
     return this.shortenUrlUseCase.execute({ userId: user.id, originalUrl });
   }
 
-  // TODO need to be response for a specific user or admin
+  /**
+   * TODO need to be response for: Admin, User, Guest
+   * - a guest user
+   * - a signed user
+   * - admin
+   * @param request
+   * @returns
+   */
   @Get()
   findAll(@Request() request) {
     this.logger.debug(`shortenUrl`);
@@ -81,8 +87,17 @@ export class UrlController {
     return res.redirect(originalUrl);
   }
 
-  // TODO need to be response for a specific user or admin
+  /**
+   * TODO need to be response for: Admin, User
+   * - a guest user
+   * - a signed user
+   * - admin
+   * TODO: the param should accept both Id and originalUrl
+   * @param findOneUserByIdDto
+   * @returns
+   */
   @Get('/:id')
+  @Roles(Role.User)
   async findOne(
     @Param()
     findOneUserByIdDto: FindOneUrlByIdDto
@@ -94,8 +109,17 @@ export class UrlController {
     };
   }
 
-  // TODO need to be response for a specific user or admin
+  /**
+   * TODO: need to be response for:
+   * - a guest user
+   * - a signed user
+   * - admin
+   * TODO: the param should accept both Id and originalUrl
+   * @param findOneUserByIdDto
+   * @returns
+   */
   @Delete(':id')
+  @Roles(Role.User)
   async delete(@Param() findOneUserByIdDto: FindOneUrlByIdDto) {
     try {
       this.logger.debug(`delete::findOneUserByIdDto: ${findOneUserByIdDto}`);
