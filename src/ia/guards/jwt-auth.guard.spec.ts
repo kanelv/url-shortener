@@ -71,51 +71,39 @@ describe('JwtAuthGuard', () => {
   });
 
   describe('canActivate', () => {
-    it('should return 200 OK when successfully authenticating', async () => {
+    it('should return true when successfully authenticating with JWT from cookies', async () => {
       MockDate.set('2024-03-26T03:03:00.000');
 
       const mockExecutionContext = createMock<ExecutionContext>({
         switchToHttp: () => ({
           getRequest: () => ({
-            headers: {
-              authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
+            cookies: {
+              jwt: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
             }
           })
         })
       });
 
-      jest.spyOn(userRepository, 'findOne').mockReturnValue(
-        Promise.resolve({
-          id: 1,
-          username: 'admin',
-          password: 'admin'
-        })
-      );
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue({
+        id: 1,
+        username: 'admin',
+        password: 'admin'
+      });
+
+      jest.spyOn(jwtAuthGuard['jwtService'], 'verifyAsync').mockResolvedValue({
+        sub: 3,
+        username: 'admin',
+        iat: 1711389910,
+        exp: 1711390030,
+        iss: 'Kane Inc.'
+      });
 
       const canActivate = await jwtAuthGuard.canActivate(mockExecutionContext);
 
       expect(canActivate).toBe(true);
     });
 
-    it('should return 401 Unauthorized when submitting an unacceptable Bearer token', async () => {
-      const mockExecutionContext = createMock<ExecutionContext>({
-        switchToHttp: () => ({
-          getRequest: () => ({
-            headers: {
-              authorization: 'Bearer '
-            }
-          })
-        })
-      });
-
-      await expect(
-        jwtAuthGuard.canActivate(mockExecutionContext)
-      ).rejects.toThrow(
-        new UnauthorizedException('Not found token in the request header')
-      );
-    });
-
-    it('should return 401 Unauthorized when authorization header is not set', async () => {
+    it('should return 401 Unauthorized when token is not found in request', async () => {
       const mockExecutionContext = createMock<ExecutionContext>({
         switchToHttp: () => ({
           getRequest: () => ({})
@@ -125,16 +113,16 @@ describe('JwtAuthGuard', () => {
       await expect(
         jwtAuthGuard.canActivate(mockExecutionContext)
       ).rejects.toThrow(
-        new UnauthorizedException('Authorization header is missing')
+        new UnauthorizedException('Token not found in request')
       );
     });
 
-    it('should return 401 Unauthorized when authorization header is not set only once in the request', async () => {
+    it('should return 401 Unauthorized when an invalid or empty token is provided', async () => {
       const mockExecutionContext = createMock<ExecutionContext>({
         switchToHttp: () => ({
           getRequest: () => ({
-            headers: {
-              authorization: [`Basic YmlkZGVyVXNlck5hbWU6QTEwMA==`]
+            cookies: {
+              jwt: '' // Empty token
             }
           })
         })
@@ -143,10 +131,28 @@ describe('JwtAuthGuard', () => {
       await expect(
         jwtAuthGuard.canActivate(mockExecutionContext)
       ).rejects.toThrow(
-        new UnauthorizedException(
-          'Authorization header should be set only once in the request'
-        )
+        new UnauthorizedException('Token not found in request')
       );
+    });
+
+    it('should return 401 Unauthorized when an invalid token is provided in cookies', async () => {
+      const mockExecutionContext = createMock<ExecutionContext>({
+        switchToHttp: () => ({
+          getRequest: () => ({
+            cookies: {
+              jwt: 'invalid-token' // Invalid token
+            }
+          })
+        })
+      });
+
+      jest
+        .spyOn(jwtAuthGuard['jwtService'], 'verifyAsync')
+        .mockRejectedValue(new Error('Invalid token'));
+
+      await expect(
+        jwtAuthGuard.canActivate(mockExecutionContext)
+      ).rejects.toThrow(new UnauthorizedException());
     });
   });
 });
