@@ -7,6 +7,7 @@ import path from 'path';
 import { ControllersModule } from './ia/controllers/controllers.module';
 import { JwtAuthGuard } from './ia/guards';
 import { RolesGuard } from './ia/guards/roles.guard';
+import { ResponseInterceptor } from './ia/interceptors/response.interceptor';
 import { DatabaseModule } from './infra/frameworks/database/database.module';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
 
@@ -65,6 +66,10 @@ import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
     {
       provide: 'APP_GUARD',
       useClass: RolesGuard
+    },
+    {
+      provide: 'APP_INTERCEPTOR',
+      useClass: ResponseInterceptor
     }
   ]
 })
