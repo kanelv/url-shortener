@@ -1,7 +1,7 @@
-import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import { hashSync, compareSync } from 'bcryptjs';
-import { AbstractBcryptService } from '../../../domain/adapters';
+import { ConfigService } from '@nestjs/config';
+import { compareSync, hashSync } from 'bcryptjs';
+import { AbstractBcryptService } from '../../../domain/services';
 
 @Injectable()
 export class BcryptService implements AbstractBcryptService {

@@ -11,13 +11,13 @@ import { Role } from '../../../../domain/entities/enums/role.enum';
 import { Url } from './url.entity';
 
 @Entity()
-@Index(['userName'], { unique: true })
+@Index(['username'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  userName: string;
+  username: string;
 
   @Column({
     nullable: true

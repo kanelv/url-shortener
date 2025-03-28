@@ -1,7 +1,7 @@
 import { Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AbstractBcryptService } from '../../../domain/adapters';
 import { AbstractUserRepository } from '../../../domain/contracts/repositories';
+import { AbstractBcryptService } from '../../../domain/services';
 
 /**
  * TODO:
@@ -12,7 +12,7 @@ import { AbstractUserRepository } from '../../../domain/contracts/repositories';
  */
 
 export type SignIn = {
-  userName: string;
+  username: string;
   password: string;
 };
 
@@ -32,15 +32,15 @@ export class SignInUserUseCase {
 
   private readonly logger = new Logger(SignInUserUseCase.name);
 
-  async execute(signIn: SignIn): Promise<any> {
+  async execute(signIn: SignIn): Promise<String> {
     this.logger.debug(`execute::signIn: ${JSON.stringify(signIn, null, 2)}`);
 
     const foundUser = await this.userRepository.findOne({
-      userName: signIn.userName
+      username: signIn.username
     });
 
     if (!foundUser) {
-      throw new Error(`Not found User that has ${signIn.userName}`);
+      throw new Error(`Not found User that has ${signIn.username}`);
     }
     this.logger.debug(
       `execute::foundUser: ${JSON.stringify(foundUser, null, 2)}`
@@ -62,7 +62,7 @@ export class SignInUserUseCase {
     // TODO: add expiration for generated token
     const payload = {
       sub: foundUser.id,
-      userName: foundUser.userName,
+      username: foundUser.username,
       email: foundUser.email,
       roles: [foundUser.role]
     };

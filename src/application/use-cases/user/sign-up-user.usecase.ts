@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { AbstractBcryptService } from '../../../domain/adapters';
 import {
   AbstractUserRepository,
   CreateOneUser
 } from '../../../domain/contracts/repositories';
+import { AbstractBcryptService } from '../../../domain/services';
 
 /**
  * Todo:
@@ -22,11 +22,11 @@ export class SignUpUserUseCase {
     this.logger.debug(`execute::createOneUser: ${createOneUser}`);
 
     const exist = await this.userRepository.isExist({
-      userName: createOneUser.userName
+      username: createOneUser.username
     });
 
     if (exist) {
-      throw new Error(`Username ${createOneUser.userName} is already exist`);
+      throw new Error(`Username ${createOneUser.username} is already exist`);
     }
 
     const encryptedPassword = await this.bcryptService.hash(
@@ -34,7 +34,7 @@ export class SignUpUserUseCase {
     );
 
     return await this.userRepository.create({
-      userName: createOneUser.userName,
+      username: createOneUser.username,
       password: encryptedPassword
     });
   }

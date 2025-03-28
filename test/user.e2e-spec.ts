@@ -37,7 +37,7 @@ describe('User (e2e)', () => {
   describe('POST /v1/users', () => {
     it('should return 201 Created when successfully submitting an acceptable SignUpUserDto', async () => {
       const signUpUserDto: SignUpUserDto = {
-        userName: 'sample',
+        username: 'sample',
         password: 'sample',
         email: 'sample@gmail.com'
       };
@@ -56,7 +56,7 @@ describe('User (e2e)', () => {
 
     it('should return 400 Bad Request when submitting an invalid email', async () => {
       const signUpUserDto: SignUpUserDto = {
-        userName: 'sample',
+        username: 'sample',
         password: 'sample',
         email: 'sample'
       };
@@ -79,11 +79,11 @@ describe('User (e2e)', () => {
       MockDate.set('2024-03-26T03:03:00.000');
 
       const createOneUser1: CreateOneUser = {
-        userName: 'sample1',
+        username: 'sample1',
         password: 'sample1'
       };
       const createOneUser2: CreateOneUser = {
-        userName: 'sample2',
+        username: 'sample2',
         password: 'sample2'
       };
 
@@ -107,7 +107,7 @@ describe('User (e2e)', () => {
             isActive: true,
             role: 'user',
             updatedAt: expect.any(String),
-            userName: 'sample1'
+            username: 'sample1'
           },
           {
             createdAt: expect.any(String),
@@ -116,7 +116,7 @@ describe('User (e2e)', () => {
             isActive: true,
             role: 'user',
             updatedAt: expect.any(String),
-            userName: 'sample2'
+            username: 'sample2'
           }
         ]
       });
@@ -128,7 +128,7 @@ describe('User (e2e)', () => {
       MockDate.set('2024-03-26T03:03:00.000');
 
       const createOneUser1: CreateOneUser = {
-        userName: 'sample1',
+        username: 'sample1',
         password: 'sample1'
       };
 
@@ -150,7 +150,7 @@ describe('User (e2e)', () => {
           isActive: true,
           role: 'user',
           updatedAt: expect.any(String),
-          userName: 'sample1'
+          username: 'sample1'
         }
       });
     });
@@ -159,7 +159,7 @@ describe('User (e2e)', () => {
       MockDate.set('2024-03-26T03:03:00.000');
 
       const createOneUser1: CreateOneUser = {
-        userName: 'sample1',
+        username: 'sample1',
         password: 'sample1'
       };
 
@@ -181,7 +181,7 @@ describe('User (e2e)', () => {
           isActive: true,
           role: 'user',
           updatedAt: expect.any(String),
-          userName: 'sample1'
+          username: 'sample1'
         }
       });
     });
@@ -192,7 +192,7 @@ describe('User (e2e)', () => {
       MockDate.set('2024-03-26T03:03:00.000');
 
       const createOneUser1: CreateOneUser = {
-        userName: 'sample1',
+        username: 'sample1',
         password: 'sample1'
       };
       const createdResult = await userRepository.create(createOneUser1);

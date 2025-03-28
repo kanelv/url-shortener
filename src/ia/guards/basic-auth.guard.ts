@@ -44,11 +44,11 @@ export class BasicAuthGuard implements CanActivate {
     const credentials = Buffer.from(based64Credentials, 'base64').toString();
     this.logger.debug(`credentials: ${credentials}`);
 
-    const [userName, password] = credentials.split(':');
-    this.logger.debug(`username: ${userName}`);
+    const [username, password] = credentials.split(':');
+    this.logger.debug(`username: ${username}`);
     this.logger.debug(`password: ${password}`);
 
-    if (!userName) {
+    if (!username) {
       throw new UnauthorizedException(
         'Authorization header is not in the correct format'
       );
@@ -56,7 +56,7 @@ export class BasicAuthGuard implements CanActivate {
 
     try {
       const user = await this.findOneUserUseCase.execute({
-        userName: userName
+        username: username
       });
 
       if (!user || user.password !== password) {
@@ -65,7 +65,7 @@ export class BasicAuthGuard implements CanActivate {
 
       request['user'] = {
         id: user.id,
-        userName: user.username,
+        username: user.username,
         password: user.password,
         role: user.role
       };

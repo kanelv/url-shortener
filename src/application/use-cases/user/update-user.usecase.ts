@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { AbstractBcryptService } from '../../../domain/adapters';
 import {
   AbstractUserRepository,
   FindOneUser
 } from '../../../domain/contracts/repositories';
+import { AbstractBcryptService } from '../../../domain/services';
 import { UpdateUserDto } from '../../../ia/dto/user';
 
 /**

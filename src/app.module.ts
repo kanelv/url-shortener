@@ -50,7 +50,7 @@ import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
           ),
           signOptions: {
             expiresIn: configService.get('JWT_TOKEN_EXPIRES_IN', '24h'),
-            issuer: 'AuthService',
+            issuer: configService.get('ISSUER', '24h'),
             algorithm: 'RS256'
           }
         };

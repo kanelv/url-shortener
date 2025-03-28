@@ -15,11 +15,11 @@ import {
   SignUpUserUseCase,
   UpdateUserUseCase
 } from '../../application/use-cases/user';
-import { AbstractBcryptService } from '../../domain/adapters';
 import {
   AbstractUrlRepository,
   AbstractUserRepository
 } from '../../domain/contracts/repositories';
+import { AbstractBcryptService } from '../../domain/services';
 import { RepositoriesModule } from '../../ia/repositories/repositories.module';
 import { BcryptModule } from '../services/bcrypt/bcrypt.module';
 

@@ -5,7 +5,7 @@ import { User as UserEntity } from '../../entities';
 import { IRepository } from './repository.interface';
 
 export type CreateOneUser = {
-  userName: string;
+  username: string;
   password: string;
   email?: string;
 };
@@ -17,7 +17,7 @@ export type UpdateOneUser = {
 
 export type FindOneUser = {
   id?: number;
-  userName?: string;
+  username?: string;
   email?: string;
 };
 
