@@ -31,8 +31,8 @@ export async function setUpApplication(app: INestApplication): Promise<void> {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('URLShortener APIs')
-    .setDescription('The URLShortener API description')
+    .setTitle('URL Shortener APIs')
+    .setDescription('API documentation for the URL Shortener backend')
     .setVersion('1.0')
     .addTag('url-shortener')
     .build();

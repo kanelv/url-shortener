@@ -10,6 +10,7 @@ import {
   Res
 } from '@nestjs/common';
 
+import { ApiTags } from '@nestjs/swagger';
 import {
   FindAllUrlUseCase,
   FindOneUrlUseCase,
@@ -24,6 +25,7 @@ import { ShortenURLDto } from '../dto/url/shorten-url.dto';
 import { Public } from '../guards/public.decorator';
 import { Roles } from '../guards/role.decorator';
 
+@ApiTags('urls')
 @Controller('urls')
 export class UrlController {
   deleteUserUseCase: any;

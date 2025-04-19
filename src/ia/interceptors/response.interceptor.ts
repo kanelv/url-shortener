@@ -21,9 +21,11 @@ export class ResponseInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
+        this.logger.debug(`intercept::data: ${JSON.stringify(data, null, 2)}`);
+
         // Set the cookie if accessToken is present in the response data
         if (data?.accessToken && data?.cookieOptions) {
-          response.cookie('jwt', data.accessToken, data.cookieOptions);
+          response.cookie('accessToken', data.accessToken, data.cookieOptions);
           delete data.accessToken; // Remove token from response body
           delete data.cookieOptions; // Remove cookieOptions from response body
         }
@@ -36,7 +38,7 @@ export class ResponseInterceptor implements NestInterceptor {
         return {
           statusCode,
           message,
-          data,
+          data: data.data,
           timestamp: new Date().toISOString()
         };
       })

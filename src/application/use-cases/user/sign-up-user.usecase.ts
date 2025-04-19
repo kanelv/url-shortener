@@ -19,7 +19,9 @@ export class SignUpUserUseCase {
   private readonly logger = new Logger(SignUpUserUseCase.name);
 
   async execute(createOneUser: CreateOneUser): Promise<any> {
-    this.logger.debug(`execute::createOneUser: ${createOneUser}`);
+    this.logger.debug(
+      `execute::createOneUser: ${JSON.stringify(createOneUser, null, 2)}`
+    );
 
     const exist = await this.userRepository.isExist({
       username: createOneUser.username

@@ -10,6 +10,7 @@ import {
   Request,
   UseGuards
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   DeleteUserUseCase,
   FindAllUserUseCase,
@@ -24,6 +25,7 @@ import { Public } from '../guards/public.decorator';
 import { Roles } from '../guards/role.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 
+@ApiTags('users')
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
@@ -38,6 +40,12 @@ export class UserController {
   readonly logger = new Logger(UserController.name);
 
   @Public()
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({
+    status: 201,
+    description: 'The user has been successfully created.'
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @Post()
   async signUp(@Body() signUpUserDto: SignUpUserDto) {
     this.logger.debug(
@@ -76,6 +84,10 @@ export class UserController {
    * @returns
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the user' })
+  @ApiResponse({ status: 200, description: 'Return the user.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
   @Roles(Role.User)
   async findOne(
     @Param() findOneUserByIdDto: FindOneUserByIdDto,

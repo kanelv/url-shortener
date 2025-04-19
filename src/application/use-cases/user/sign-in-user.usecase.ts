@@ -32,7 +32,7 @@ export class SignInUserUseCase {
 
   private readonly logger = new Logger(SignInUserUseCase.name);
 
-  async execute(signIn: SignIn): Promise<String> {
+  async execute(signIn: SignIn): Promise<string> {
     this.logger.debug(`execute::signIn: ${JSON.stringify(signIn, null, 2)}`);
 
     const foundUser = await this.userRepository.findOne({

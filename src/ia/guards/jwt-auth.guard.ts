@@ -71,6 +71,6 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
-    return request.cookies?.jwt; // Assuming the JWT is stored in a cookie named 'jwt'
+    return request.cookies?.accessToken; // Assuming the JWT is stored in a cookie named 'access_token'
   }
 }

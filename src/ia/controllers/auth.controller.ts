@@ -1,10 +1,12 @@
 import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 import { CookieOptions } from 'express';
 import { SignInUserUseCase } from '../../application/use-cases/user/sign-in-user.usecase';
 import { SignInUserDto } from '../dto/user/sign-in-user.dto';
 import { Public } from '../guards/public.decorator';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
