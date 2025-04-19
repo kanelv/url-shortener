@@ -78,7 +78,7 @@ describe('JwtAuthGuard', () => {
         switchToHttp: () => ({
           getRequest: () => ({
             cookies: {
-              jwt: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
+              accessToken: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3MTEzODk5MTAsImV4cCI6MTcxMTM5MDAzMCwiaXNzIjoiS2FuZSBJbmMuIn0.FcDmsYQliWf9JmIVUKSg1vVGA8vXrtxRsFjhVtK3iDY`
             }
           })
         })
@@ -122,7 +122,7 @@ describe('JwtAuthGuard', () => {
         switchToHttp: () => ({
           getRequest: () => ({
             cookies: {
-              jwt: '' // Empty token
+              accessToken: '' // Empty token
             }
           })
         })
@@ -140,7 +140,7 @@ describe('JwtAuthGuard', () => {
         switchToHttp: () => ({
           getRequest: () => ({
             cookies: {
-              jwt: 'invalid-token' // Invalid token
+              accessToken: 'invalid-token' // Invalid token
             }
           })
         })
