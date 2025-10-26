@@ -2,26 +2,32 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
-  AbstractUrlRepository,
+  AbstractShortLinkRepository,
   AbstractUserRepository
 } from '../../domain/contracts/repositories';
-import { Url, User } from '../../infra/frameworks/database/entities';
+import { User } from '../../infra/frameworks/database/entities';
+import { AwsServiceModule } from '../../infra/services/aws-services/aws-services.modules';
 import { BcryptModule } from '../../infra/services/bcrypt/bcrypt.module';
-import { UrlRepository } from './url.repository';
+import { DynamoDBShortlinkRepository } from './aws-dynamodb/dynamodb-shortlink.repository';
 import { UserRepository } from './user.repository';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([User, Url]), BcryptModule],
+  imports: [
+    ConfigModule,
+    TypeOrmModule.forFeature([User]),
+    BcryptModule,
+    AwsServiceModule
+  ],
   providers: [
     {
       provide: AbstractUserRepository,
       useClass: UserRepository
     },
     {
-      provide: AbstractUrlRepository,
-      useClass: UrlRepository
+      provide: AbstractShortLinkRepository,
+      useClass: DynamoDBShortlinkRepository
     }
   ],
-  exports: [AbstractUserRepository, AbstractUrlRepository]
+  exports: [AbstractUserRepository, AbstractShortLinkRepository]
 })
 export class RepositoriesModule {}

@@ -35,7 +35,7 @@ export class SignInUserUseCase {
   async execute(signIn: SignIn): Promise<string> {
     this.logger.debug(`execute::signIn: ${JSON.stringify(signIn, null, 2)}`);
 
-    const foundUser = await this.userRepository.findOne({
+    const foundUser = await this.userRepository.findOneBy({
       username: signIn.username
     });
 

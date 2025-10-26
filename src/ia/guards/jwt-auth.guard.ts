@@ -24,8 +24,6 @@ export class JwtAuthGuard implements CanActivate {
   private readonly logger = new Logger(JwtAuthGuard.name);
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    this.logger.debug(`canActivate`);
-
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass()

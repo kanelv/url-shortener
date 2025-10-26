@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UseCasesProxyModule } from '../../infra/use-cases-proxy/use-cases-proxy.module';
 import { AuthController } from './auth.controller';
 import { ExampleController } from './example.controller';
-import { UrlController } from './url.controller';
+import { ShortLinkController } from './shortlink.controller';
 import { UserController } from './user.controller';
 
 /**
@@ -14,7 +14,7 @@ import { UserController } from './user.controller';
   providers: [],
   controllers: [
     UserController,
-    UrlController,
+    ShortLinkController,
     AuthController,
     ExampleController
   ]

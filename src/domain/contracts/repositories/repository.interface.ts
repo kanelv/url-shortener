@@ -4,12 +4,12 @@
 export type UrlFindOneBy = {
   id?: number;
   originalUrl?: string;
-  urlCode?: string;
+  shortCode?: string;
 };
 
 export interface IRepository {
   create(object: any): Promise<any>;
-  findAll(): Promise<any[]>;
-  findOne(object: any): Promise<any>;
+  findAll(object: any): Promise<any[]>;
+  findOneBy(object: any): Promise<any>;
   isExist(object: any): Promise<any>;
 }

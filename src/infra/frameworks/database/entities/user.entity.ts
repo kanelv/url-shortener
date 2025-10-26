@@ -3,18 +3,17 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { Role } from '../../../../domain/entities/enums/role.enum';
-import { Url } from './url.entity';
 
 @Entity()
 @Index(['username'], { unique: true })
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string = uuidv4();
 
   @Column()
   username: string;
@@ -38,9 +37,6 @@ export class User {
     default: true
   })
   public isActive: boolean;
-
-  @OneToMany(() => Url, (url: Url) => url.user, { cascade: true })
-  urls?: Url[];
 
   @CreateDateColumn()
   public createdAt: Date;

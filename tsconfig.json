@@ -28,5 +28,9 @@
       "@/*": ["*", "./src/*"],
       "@/test/*": ["../test/*"]
     }
-  }
+  },
+  "include": [
+    "src/**/*",
+    "src/utils/types/jest.d.ts"
+  ]
 }

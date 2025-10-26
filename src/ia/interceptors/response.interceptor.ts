@@ -6,6 +6,7 @@ import {
   NestInterceptor
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import dayjs from 'dayjs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -39,7 +40,7 @@ export class ResponseInterceptor implements NestInterceptor {
           statusCode,
           message,
           data: data.data,
-          timestamp: new Date().toISOString()
+          timestamp: dayjs().toISOString()
         };
       })
     );

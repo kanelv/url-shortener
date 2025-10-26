@@ -1,12 +1,16 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
-  DeleteUrlUseCase,
-  FindAllUrlUseCase,
-  FindOneUrlUseCase,
-  RedirectUrlUseCase,
-  ShortenUrlUseCase
-} from '../../application/use-cases/url';
+  CreateShortLinkUseCase,
+  DeactivateShortLinkUseCase,
+  DeleteShortLinkUseCase,
+  ExtendShortLinkExpiryUseCase,
+  FindAllActiveShortLinkUseCase,
+  FindAllShortLinkUseCase,
+  FindOneShortLinkUseCase,
+  RedirectShortLinkUseCase
+} from '../../application/use-cases/shortlink';
+import { ActivateShortLinkUseCase } from '../../application/use-cases/shortlink/activate-shortlink.usecase';
 import {
   DeleteUserUseCase,
   FindAllUserUseCase,
@@ -16,7 +20,7 @@ import {
   UpdateUserUseCase
 } from '../../application/use-cases/user';
 import {
-  AbstractUrlRepository,
+  AbstractShortLinkRepository,
   AbstractUserRepository
 } from '../../domain/contracts/repositories';
 import { AbstractBcryptService } from '../../domain/services';
@@ -31,6 +35,9 @@ export class UseCasesProxyModule {
     return {
       module: UseCasesProxyModule,
       providers: [
+        /**
+         * User Management
+         */
         {
           inject: [AbstractUserRepository, AbstractBcryptService],
           provide: SignUpUserUseCase,
@@ -50,15 +57,15 @@ export class UseCasesProxyModule {
         },
         {
           inject: [AbstractUserRepository],
-          provide: FindOneUserUseCase,
-          useFactory: (userRepository: AbstractUserRepository) =>
-            new FindOneUserUseCase(userRepository)
-        },
-        {
-          inject: [AbstractUserRepository],
           provide: FindAllUserUseCase,
           useFactory: (userRepository: AbstractUserRepository) =>
             new FindAllUserUseCase(userRepository)
+        },
+        {
+          inject: [AbstractUserRepository],
+          provide: FindOneUserUseCase,
+          useFactory: (userRepository: AbstractUserRepository) =>
+            new FindOneUserUseCase(userRepository)
         },
         {
           inject: [AbstractUserRepository, AbstractBcryptService],
@@ -74,35 +81,62 @@ export class UseCasesProxyModule {
           useFactory: (userRepository: AbstractUserRepository) =>
             new DeleteUserUseCase(userRepository)
         },
+        /**
+         * ShortLink Management
+         */
         {
-          inject: [AbstractUrlRepository],
-          provide: ShortenUrlUseCase,
-          useFactory: (urlRepository: AbstractUrlRepository) =>
-            new ShortenUrlUseCase(urlRepository)
+          inject: [AbstractShortLinkRepository],
+          provide: CreateShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new CreateShortLinkUseCase(urlRepository)
         },
         {
-          inject: [AbstractUrlRepository],
-          provide: FindAllUrlUseCase,
-          useFactory: (urlRepository: AbstractUrlRepository) =>
-            new FindAllUrlUseCase(urlRepository)
+          inject: [AbstractShortLinkRepository],
+          provide: FindAllShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new FindAllShortLinkUseCase(urlRepository)
         },
         {
-          inject: [AbstractUrlRepository],
-          provide: RedirectUrlUseCase,
-          useFactory: (urlRepository: AbstractUrlRepository) =>
-            new RedirectUrlUseCase(urlRepository)
+          inject: [AbstractShortLinkRepository],
+          provide: FindAllActiveShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new FindAllActiveShortLinkUseCase(urlRepository)
         },
         {
-          inject: [AbstractUrlRepository],
-          provide: FindOneUrlUseCase,
-          useFactory: (urlRepository: AbstractUrlRepository) =>
-            new FindOneUrlUseCase(urlRepository)
+          inject: [AbstractShortLinkRepository],
+          provide: FindOneShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new FindOneShortLinkUseCase(urlRepository)
         },
         {
-          inject: [AbstractUrlRepository],
-          provide: DeleteUrlUseCase,
-          useFactory: (urlRepository: AbstractUrlRepository) =>
-            new DeleteUrlUseCase(urlRepository)
+          inject: [AbstractShortLinkRepository],
+          provide: ExtendShortLinkExpiryUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new ExtendShortLinkExpiryUseCase(urlRepository)
+        },
+        {
+          inject: [AbstractShortLinkRepository],
+          provide: ActivateShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new ActivateShortLinkUseCase(urlRepository)
+        },
+        {
+          inject: [AbstractShortLinkRepository],
+          provide: DeactivateShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new DeactivateShortLinkUseCase(urlRepository)
+        },
+        {
+          inject: [AbstractShortLinkRepository],
+          provide: DeleteShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new DeleteShortLinkUseCase(urlRepository)
+        },
+        {
+          inject: [AbstractShortLinkRepository],
+          provide: RedirectShortLinkUseCase,
+          useFactory: (urlRepository: AbstractShortLinkRepository) =>
+            new RedirectShortLinkUseCase(urlRepository)
         }
       ],
       exports: [
@@ -112,11 +146,15 @@ export class UseCasesProxyModule {
         FindOneUserUseCase,
         UpdateUserUseCase,
         DeleteUserUseCase,
-        ShortenUrlUseCase,
-        FindAllUrlUseCase,
-        RedirectUrlUseCase,
-        FindOneUrlUseCase,
-        DeleteUrlUseCase
+        CreateShortLinkUseCase,
+        FindAllShortLinkUseCase,
+        FindAllActiveShortLinkUseCase,
+        FindOneShortLinkUseCase,
+        ExtendShortLinkExpiryUseCase,
+        ActivateShortLinkUseCase,
+        DeactivateShortLinkUseCase,
+        DeleteShortLinkUseCase,
+        RedirectShortLinkUseCase
       ]
     };
   }
