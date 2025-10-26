@@ -53,7 +53,7 @@ http://url-shortener.com/url/2DPzYjN6Vh.
 - discuss the data capacity model to estimate teh storage of the system.
 - Let’s make the assumption given below for different attributes… 
   + consider the average originalURL size of 2KB for 2048 character
-  + urlCode: 10 bytes for 10 characters
+  + shortCode: 10 bytes for 10 characters
   + created_at: timestamp: 8 bytes,
   + expiration_length_in_minutes: timestamp: 8 bytes
 => 2.0254KB per shortened URL entry in the database.

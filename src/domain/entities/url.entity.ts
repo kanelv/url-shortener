@@ -6,7 +6,7 @@ import { User } from './user.entity';
 export type Url = {
   id: number;
 
-  urlCode: string;
+  shortCode: string;
 
   originalUrl: string;
 

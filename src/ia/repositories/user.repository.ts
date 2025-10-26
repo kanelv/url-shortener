@@ -9,7 +9,7 @@ import {
 } from '../../domain/contracts/repositories';
 import { User as UserEntity } from '../../domain/entities';
 import { User } from '../../infra/frameworks/database/entities';
-import { OmitProperties } from '../../utils';
+import { OmitProperties } from '../../utils/types';
 
 export class UserRepository implements AbstractUserRepository {
   constructor(
@@ -51,7 +51,7 @@ export class UserRepository implements AbstractUserRepository {
   }
 
   // TODO: need to be updated return type
-  async findOne(findOneUser: FindOneUser): Promise<User> {
+  async findOneBy(findOneUser: FindOneUser): Promise<User> {
     this.logger.debug(
       `findOne::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
     );
@@ -101,9 +101,7 @@ export class UserRepository implements AbstractUserRepository {
     }
   }
 
-  async isExist(
-    conditions: Partial<Omit<UserEntity, 'urls'> & { id: number }>
-  ): Promise<boolean> {
+  async isExist(conditions: UserEntity & { id: string }): Promise<boolean> {
     this.logger.debug(
       `isExist::conditions: ${JSON.stringify(conditions, null, 2)}`
     );

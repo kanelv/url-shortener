@@ -84,7 +84,7 @@ describe('JwtAuthGuard', () => {
         })
       });
 
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue({
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue({
         id: 1,
         username: 'admin',
         password: 'admin'

@@ -14,5 +14,8 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.preferences.quoteStyle": "single",
   "prettier.prettierPath": "./node_modules/prettier",
-  "prettier.configPath": "./.prettierrc"
+  "prettier.configPath": "./.prettierrc",
+  "cSpell.words": [
+    "ShortLink"
+  ]
 }

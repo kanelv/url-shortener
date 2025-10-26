@@ -1,14 +1,17 @@
 import * as Joi from '@hapi/joi';
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import fs from 'fs';
 import path from 'path';
 import { ControllersModule } from './ia/controllers/controllers.module';
+import { HttpExceptionFilter } from './ia/filters/http-exception.filter';
 import { JwtAuthGuard } from './ia/guards';
 import { RolesGuard } from './ia/guards/roles.guard';
 import { ResponseInterceptor } from './ia/interceptors/response.interceptor';
 import { DatabaseModule } from './infra/frameworks/database/database.module';
+import { AwsServiceModule } from './infra/services/aws-services/aws-services.modules';
 import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
 
 @Module({
@@ -60,20 +63,31 @@ import { BcryptModule } from './infra/services/bcrypt/bcrypt.module';
     }),
     DatabaseModule,
     ControllersModule,
-    BcryptModule
+    BcryptModule,
+    AwsServiceModule
   ],
   providers: [
     {
-      provide: 'APP_GUARD',
+      provide: APP_GUARD,
       useClass: JwtAuthGuard
     },
     {
-      provide: 'APP_GUARD',
+      provide: APP_GUARD,
       useClass: RolesGuard
     },
+    // ✅ First, apply the built-in serializer
     {
-      provide: 'APP_INTERCEPTOR',
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    },
+    // ✅ Then, apply your custom response interceptor
+    {
+      provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
     }
   ]
 })

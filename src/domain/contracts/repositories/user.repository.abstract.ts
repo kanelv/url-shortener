@@ -16,7 +16,7 @@ export type UpdateOneUser = {
 };
 
 export type FindOneUser = {
-  id?: number;
+  id?: string;
   username?: string;
   email?: string;
 };
@@ -24,10 +24,10 @@ export type FindOneUser = {
 export abstract class AbstractUserRepository implements IRepository {
   abstract create(createOneUser: CreateOneUser): Promise<any>;
   abstract findAll(): Promise<any[]>;
-  abstract findOne(findOneUser: FindOneUser): Promise<any>;
+  abstract findOneBy(findOneUser: FindOneUser): Promise<any>;
   abstract updateOne(updateOneUser: UpdateOneUser): Promise<any>;
   abstract deleteOne(findOneUser: FindOneUser): Promise<boolean>;
   abstract isExist(
-    conditions: Partial<Omit<UserEntity, 'urls'> & { id: number }>
+    conditions: Partial<Omit<UserEntity, 'urls'> & { id: string }>
   ): Promise<boolean>;
 }

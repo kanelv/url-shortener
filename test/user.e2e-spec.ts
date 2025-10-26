@@ -52,7 +52,7 @@ describe('User (e2e)', () => {
 
       expect(response.body).toEqual({
         data: {
-          id: 1
+          id: expect.any(String)
         },
         message: 'Success',
         statusCode: 201,
@@ -107,7 +107,7 @@ describe('User (e2e)', () => {
           {
             createdAt: expect.any(String),
             email: null,
-            id: expect.any(Number),
+            id: expect.any(String),
             isActive: true,
             role: 'user',
             updatedAt: expect.any(String),
@@ -116,7 +116,7 @@ describe('User (e2e)', () => {
           {
             createdAt: expect.any(String),
             email: null,
-            id: expect.any(Number),
+            id: expect.any(String),
             isActive: true,
             role: 'user',
             updatedAt: expect.any(String),
@@ -150,7 +150,7 @@ describe('User (e2e)', () => {
         data: {
           createdAt: expect.any(String),
           email: null,
-          id: expect.any(Number),
+          id: expect.any(String),
           isActive: true,
           role: 'user',
           updatedAt: expect.any(String),
@@ -181,7 +181,7 @@ describe('User (e2e)', () => {
         data: {
           createdAt: expect.any(String),
           email: null,
-          id: expect.any(Number),
+          id: expect.any(String),
           isActive: true,
           role: 'user',
           updatedAt: expect.any(String),

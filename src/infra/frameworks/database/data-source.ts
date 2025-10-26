@@ -7,7 +7,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
-const resolvedPath = resolve(__dirname, '../../../../.env.test');
+const resolvedPath = resolve(__dirname, '../../../../.env');
 console.log(`resolvedPath: ${resolvedPath}`);
 
 dotenv.config({ path: resolvedPath });

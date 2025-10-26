@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class FindOneUrlByUrlCodeDto {
+export class FindOneShortLinkByShortCodeDto {
   @IsString()
   @IsNotEmpty()
-  urlCode: string;
+  readonly shortCode: string;
 }
