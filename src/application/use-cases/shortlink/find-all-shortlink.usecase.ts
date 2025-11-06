@@ -12,9 +12,12 @@ export class FindAllShortLinkUseCase {
     private readonly shortLinkRepository: AbstractShortLinkRepository
   ) {}
 
-  async execute(findShortLink?: FindShortLink): Promise<ShortLinkEntity[]> {
+  async execute(findShortLink?: FindShortLink): Promise<{
+    items: ShortLinkEntity[];
+    nextPageToken?: string;
+  }> {
     this.logger.debug(
-      `execute::findOneShortlink: ${JSON.stringify(findShortLink, null, 2)}`
+      `execute::findShortLink: ${JSON.stringify(findShortLink, null, 2)}`
     );
 
     return await this.shortLinkRepository.findAll(findShortLink);

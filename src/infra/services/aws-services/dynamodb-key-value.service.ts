@@ -130,7 +130,8 @@ export class DynamoDBKeyValueService implements AbstractKeyValueService {
     filterExpression?: string,
     exclusiveStartKey?: Record<string, unknown>,
     scanIndexForward: boolean = false,
-    limit: number = 10
+    limit: number = 10,
+    indexName?: string
   ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, unknown> }> {
     if (!tableName)
       throw new InternalServerErrorException('Table name is required');
@@ -154,11 +155,13 @@ export class DynamoDBKeyValueService implements AbstractKeyValueService {
       ...(filterExpression && { FilterExpression: filterExpression }),
       ...(exclusiveStartKey && { ExclusiveStartKey: exclusiveStartKey }),
       ScanIndexForward: scanIndexForward, // false = descending order (newest first)
-      Limit: limit // optional: limit number of result
+      Limit: limit, // optional: limit number of result
+      ...(indexName && { IndexName: indexName })
     });
 
     try {
       const result: QueryCommandOutput = await this.dynamoDb.send(command);
+      this.logger.log(`getItems::result: ${JSON.stringify(result, null, 2)}`);
 
       if (result.$metadata.httpStatusCode !== 200) {
         throw new Error(

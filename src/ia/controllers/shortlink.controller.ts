@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   Res
 } from '@nestjs/common';
@@ -24,7 +25,6 @@ import {
 } from '../../application/use-cases/shortlink';
 import { ActivateShortLinkUseCase } from '../../application/use-cases/shortlink/activate-shortlink.usecase';
 import { Role } from '../../domain/entities/enums';
-import { FindOneShortLinkByIdDto } from '../dto/url/find-one-shortlink-by-id.dto';
 import { ShortenURLDto } from '../dto/url/shorten-url.dto';
 import { Public } from '../guards/public.decorator';
 import { Roles } from '../guards/role.decorator';
@@ -76,45 +76,78 @@ export class ShortLinkController {
    * @returns
    */
   @Get()
-  findAllShortLink(@Request() request) {
+  async findAllShortLink(
+    @Request() request,
+    @Query('nextPageToken') nextPageToken?: string,
+    @Query('limit') limit?: string
+  ) {
     const { user } = request;
     this.logger.debug(
       `findAllShortLink::user: ${JSON.stringify(user, null, 2)}`
     );
 
-    return this.findAllShortLinkUseCase.execute();
+    const parsedLimit = limit ? parseInt(limit, 10) : undefined;
+
+    if (user.roles.includes(Role.Admin)) {
+      return {
+        data: await this.findAllShortLinkUseCase.execute({
+          nextPageToken,
+          limit: parsedLimit
+        })
+      };
+    } else if (user.roles.includes(Role.User)) {
+      return {
+        data: await this.findAllShortLinkUseCase.execute({
+          userId: user.id,
+          nextPageToken,
+          limit: parsedLimit
+        })
+      };
+    } else {
+      return {
+        data: await this.findAllShortLinkUseCase.execute({
+          nextPageToken,
+          limit: parsedLimit
+        })
+      };
+    }
   }
 
   @Get()
-  findAllActiveShortLink(@Request() request) {
+  async findAllActiveShortLink(@Request() request) {
     const { userId } = request;
     this.logger.debug(`findAllActiveShortLink::userId: ${userId}`);
 
-    return this.findAllActiveShortLinkUseCase.execute({
-      userId,
-      active: true
-    });
+    return {
+      data: await this.findAllActiveShortLinkUseCase.execute({
+        userId,
+        active: true
+      })
+    };
   }
 
   /**
    * TODO need to be response for: Admin, User
-   * - a guest user
-   * - a signed user
+   * - guest
+   * - user
    * - admin
-   * TODO: the param should accept both Id and originalUrl
-   * @param findOneUserByIdDto
-   * @returns
    */
-  @Get('/:id')
-  @Roles(Role.User)
+  @Get('/:shortCode')
+  @Roles(Role.Admin, Role.User)
   async findOneShortLink(
-    @Param()
-    findOneUserByIdDto: FindOneShortLinkByIdDto
+    @Request() request,
+    @Param('shortCode') shortCode: string
   ) {
-    this.logger.debug(`findOne::findOneUserByIdDto: ${findOneUserByIdDto}`);
+    this.logger.debug(`findOne::shortCode: ${shortCode}`);
+
+    const { user } = request;
+    this.logger.debug(`findOne::user: ${JSON.stringify(user, null, 2)}`);
 
     return {
-      url: await this.findOneShortLinkUseCase.execute(findOneUserByIdDto)
+      data: await this.findOneShortLinkUseCase.execute({
+        userId: user.id,
+        shortCode
+      })
     };
   }
 
@@ -130,44 +163,58 @@ export class ShortLinkController {
     return res.redirect(originalUrl);
   }
 
-  @Put(':id/activate')
+  @Put(':shortCode/activate')
   @Roles(Role.User, Role.Admin)
   async activateShortLink(
-    @Request() req,
+    @Request() request,
     @Param('shortCode') shortCode: string
   ) {
-    const { userId } = req;
+    const { user } = request;
     this.logger.debug(
-      `activateShortLink::user: ${userId} - shortCode: ${shortCode}`
+      `activateShortLink::user: ${JSON.stringify(
+        user,
+        null,
+        2
+      )} - shortCode: ${shortCode}`
     );
-    return this.activateShortLinkUseCase.execute(userId, shortCode);
+
+    return this.activateShortLinkUseCase.execute(user.id, shortCode);
   }
 
-  @Put(':id/deactivate')
+  @Put(':shortCode/deactivate')
   @Roles(Role.User, Role.Admin)
   async deactivateShortLink(
-    @Request() req,
+    @Request() request,
     @Param('shortCode') shortCode: string
   ) {
-    const { userId } = req;
+    const { user } = request;
     this.logger.debug(
-      `deactivateShortLink::user: ${userId} - shortCode: ${shortCode}`
+      `deactivateShortLink::user: ${JSON.stringify(
+        user,
+        null,
+        2
+      )} - shortCode: ${shortCode}`
     );
-    return this.deactivateShortLinkUseCase.execute(userId, shortCode);
+    return this.deactivateShortLinkUseCase.execute(user.id, shortCode);
   }
 
-  @Put(':id/extend')
+  @Put(':shortCode/extend')
   @Roles(Role.User, Role.Admin)
   async extendShortLink(
-    @Request() req,
-    @Param('id') id: string,
+    @Request() request,
+    @Param('shortCode') shortCode: string,
     @Body('days') days: string
   ) {
-    const { userId } = req;
-    this.logger.debug(`extendShortLink::extendShortLink: ${userId}`);
+    const { user } = request;
+    this.logger.debug(
+      `extendShortLink::user: ${JSON.stringify(
+        user,
+        null,
+        2
+      )} - shortCode: ${shortCode} - days: ${days}`
+    );
 
-    this.logger.debug(`extendShortLink::id: ${id}::days: ${days}`);
-    return this.extendShortLinkExpiryUseCase.execute(userId, id, days);
+    return this.extendShortLinkExpiryUseCase.execute(user.id, shortCode, days);
   }
 
   /**
@@ -179,13 +226,13 @@ export class ShortLinkController {
    * @param findOneUserByIdDto
    * @returns
    */
-  @Delete(':id')
+  @Delete(':shortCode')
   @Roles(Role.User, Role.Admin)
-  async delete(@Param() findOneUserByIdDto: FindOneShortLinkByIdDto) {
+  async delete(@Param('shortCode') shortCode: string) {
     try {
-      this.logger.debug(`delete::findOneUserByIdDto: ${findOneUserByIdDto}`);
+      this.logger.debug(`delete::shortCode: ${shortCode}`);
 
-      await this.deleteShortLinkUseCase.execute(findOneUserByIdDto);
+      await this.deleteShortLinkUseCase.execute({ shortCode });
 
       return { status: true };
     } catch (error) {

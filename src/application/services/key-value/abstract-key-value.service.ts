@@ -27,7 +27,10 @@ export abstract class AbstractKeyValueService {
     keyConditionExpression: string,
     expressionAttributeValues: Record<string, unknown>,
     filterExpression?: string,
-    exclusiveStartKey?: Record<string, unknown>
+    exclusiveStartKey?: Record<string, unknown>,
+    scanIndexForward?: boolean,
+    limit?: number,
+    indexName?: string
   ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, unknown> }>;
 
   /**

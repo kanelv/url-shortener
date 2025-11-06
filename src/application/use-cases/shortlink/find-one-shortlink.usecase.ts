@@ -3,7 +3,7 @@ import {
   AbstractShortLinkRepository,
   FindOneShortLink
 } from '../../../domain/contracts/repositories';
-import { ShortLinkEntity } from '../../../domain/entities/shortlink.entity';
+import { ShortLinkEntity } from '../../../domain/entities';
 
 export class FindOneShortLinkUseCase {
   private readonly logger = new Logger(FindOneShortLinkUseCase.name);

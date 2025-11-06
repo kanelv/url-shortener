@@ -58,7 +58,6 @@ export class UserController {
   }
 
   /**
-   * TODO need to be response for: only admin
    * @param request
    * @returns
    */
@@ -76,9 +75,6 @@ export class UserController {
   }
 
   /**
-   * TODO: need to be response for: Admin, User
-   * - a signed user
-   * - admin
    * @param findOneUserByIdDto
    * @param request
    * @returns
@@ -88,10 +84,10 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'ID of the user' })
   @ApiResponse({ status: 200, description: 'Return the user.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   async findOne(
-    @Param() findOneUserByIdDto: FindOneUserByIdDto,
-    @Request() request
+    @Request() request,
+    @Param() findOneUserByIdDto: FindOneUserByIdDto
   ) {
     this.logger.debug(
       `findOne::findOneUserByIdDto: ${JSON.stringify(
@@ -101,29 +97,26 @@ export class UserController {
       )}`
     );
 
-    // TODO: these commented commands below is to consider result by role
-    // const { user } = request;
+    const { user } = request;
 
-    // if (user.id !== findOneUserByIdDto.id) {
-    //   throw new Error('You are not allowed to access this resource');
-    // }
-
-    return {
-      data: await this.findOneUserUseCase.execute(findOneUserByIdDto)
-    };
+    if (user.id === findOneUserByIdDto.id || user.roles.contains(Role.Admin)) {
+      return {
+        data: await this.findOneUserUseCase.execute(findOneUserByIdDto)
+      };
+    } else {
+      throw new Error('You are not allowed to access this resource');
+    }
   }
 
   /**
-   * TODO: need to be response for: Admin, User
-   * - a signed user
-   * - admin
    * @param findOneUserByIdDto
    * @param updateUserDto
    * @returns
    */
   @Patch(':id')
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   async update(
+    @Request() request,
     @Param() findOneUserByIdDto: FindOneUserByIdDto,
     @Body() updateUserDto: UpdateUserDto
   ) {
@@ -135,24 +128,30 @@ export class UserController {
       )} - updateUserDto: ${JSON.stringify(updateUserDto, null, 2)}`
     );
 
-    return {
-      data: await this.updateUserUseCase.execute(
-        findOneUserByIdDto,
-        updateUserDto
-      )
-    };
+    const { user } = request;
+
+    if (user.id === findOneUserByIdDto.id || user.roles.contains(Role.Admin)) {
+      return {
+        data: await this.updateUserUseCase.execute(
+          findOneUserByIdDto,
+          updateUserDto
+        )
+      };
+    } else {
+      throw new Error('You are not allowed to access this resource');
+    }
   }
 
   /**
-   * TODO: need to be response for: Admin, User
-   * - a signed user
-   * - admin
    * @param findOneUserByIdDto
    * @returns
    */
   @Delete(':id')
-  @Roles(Role.User)
-  async delete(@Param() findOneUserByIdDto: FindOneUserByIdDto) {
+  @Roles(Role.Admin, Role.User)
+  async delete(
+    @Request() request,
+    @Param() findOneUserByIdDto: FindOneUserByIdDto
+  ) {
     this.logger.debug(
       `delete::findOneUserByIdDto: ${JSON.stringify(
         findOneUserByIdDto,
@@ -161,8 +160,14 @@ export class UserController {
       )}`
     );
 
-    return {
-      data: await this.deleteUserUseCase.execute(findOneUserByIdDto)
-    };
+    const { user } = request;
+
+    if (user.id === findOneUserByIdDto.id || user.roles.contains(Role.Admin)) {
+      return {
+        data: await this.deleteUserUseCase.execute(findOneUserByIdDto)
+      };
+    } else {
+      throw new Error('You are not allowed to access this resource');
+    }
   }
 }

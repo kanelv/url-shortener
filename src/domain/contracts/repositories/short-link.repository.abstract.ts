@@ -12,16 +12,21 @@ export type CreateOneShortLink = {
 export type FindShortLink = {
   userId?: string;
   active?: boolean;
+  limit?: number;
+  nextPageToken?: string;
 };
 
 export type FindOneShortLink = FindShortLink & {
-  id?: number;
+  userId?: string;
   shortCode?: string;
 };
 
 export abstract class AbstractShortLinkRepository implements IRepository {
   abstract create(createOneShortLink: CreateOneShortLink): Promise<any>;
-  abstract findAll(findShortLink?: FindShortLink): Promise<any[]>;
+  abstract findAll(findShortLink?: FindShortLink): Promise<{
+    items: ShortLinkEntity[];
+    nextPageToken?: string;
+  }>;
   abstract findOneBy(findOneShortLink: FindOneShortLink): Promise<any>;
   abstract updateOne(
     findOneShortLink: FindOneShortLink,

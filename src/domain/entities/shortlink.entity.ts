@@ -1,10 +1,14 @@
 import { Exclude, Expose } from 'class-transformer';
 
 export class ShortLinkEntity {
-  @Exclude()
+  @Expose()
   PK: string; // user#<userId>
-  @Exclude()
-  SK: string; // shortlink#<shortCode>
+  @Expose()
+  SK: string; // shortlink#<timestamp><shortCode>
+  @Expose()
+  GSI1PK: string; // shortcode#$<shortCode>
+  @Expose()
+  GSI1SK: string; // user#<userId>
   @Expose()
   originalUrl: string;
   @Expose()

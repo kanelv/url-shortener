@@ -1,18 +1,18 @@
+import { AbstractKeyValueService } from '@/application/services';
+import {
+  AbstractShortLinkRepository,
+  CreateOneShortLink,
+  FindOneShortLink,
+  FindShortLink
+} from '@/domain/contracts/repositories';
+import { ShortLinkEntity } from '@/domain/entities';
+import { Roles } from '@/ia/guards/role.decorator';
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
-import { AbstractKeyValueService } from '../../../application/services';
-import {
-  AbstractShortLinkRepository,
-  CreateOneShortLink,
-  FindOneShortLink,
-  FindShortLink
-} from '../../../domain/contracts/repositories';
-import { ShortLinkEntity } from '../../../domain/entities/shortlink.entity';
-import { Roles } from '../../guards/role.decorator';
 
 @Injectable()
 export class DynamoDBShortlinkRepository
@@ -47,7 +47,9 @@ export class DynamoDBShortlinkRepository
 
       const shortLinkItem: ShortLinkEntity = {
         PK: `user#${createOneShortLink.userId}`,
-        SK: `shortlink#${now.unix()}${shortCode}`,
+        SK: `shortlink#${now.unix()}#${shortCode}`,
+        GSI1PK: `shortcode#${shortCode}`,
+        GSI1SK: `user#${createOneShortLink.userId}`,
         originalUrl: createOneShortLink.originalUrl,
         shortCode: shortCode,
         clicks: 0,
@@ -88,16 +90,36 @@ export class DynamoDBShortlinkRepository
     );
   }
 
-  async findAll(findShortLink?: FindShortLink): Promise<ShortLinkEntity[]> {
+  async findAll(findShortLink?: FindShortLink): Promise<{
+    items: ShortLinkEntity[];
+    nextPageToken?: string;
+  }> {
     this.logger.log(
       `findAll::findShortLink: ${JSON.stringify(findShortLink, null, 2)}`
     );
 
-    const keyConditionExpression: string =
-      'PK = :pk AND begins_with(SK, :prefix)';
     const tableName = String(
       this.configService.get<string>('DYNAMO_DB_TABLE_NAME') ?? 'ShortLink'
     );
+
+    // Decode nextPageToken to exclusiveStartKey
+    let exclusiveStartKey: Record<string, unknown> | undefined;
+    if (findShortLink?.nextPageToken) {
+      try {
+        const decoded = Buffer.from(
+          findShortLink.nextPageToken,
+          'base64'
+        ).toString('utf-8');
+        exclusiveStartKey = JSON.parse(decoded);
+      } catch (error) {
+        this.logger.error('Invalid nextPageToken', error);
+        throw new Error('Invalid pagination token');
+      }
+    }
+
+    // Query
+    const keyConditionExpression: string =
+      'PK = :pk AND begins_with(SK, :prefix)';
 
     const expressionAttributeValues = findShortLink?.userId
       ? {
@@ -109,6 +131,8 @@ export class DynamoDBShortlinkRepository
           ':prefix': 'shortlink#'
         };
 
+    const limit = findShortLink?.limit ?? 10;
+
     if (findShortLink?.active) {
       expressionAttributeValues[':status'] = true;
       const filterExpression: string = 'status = :status';
@@ -117,64 +141,98 @@ export class DynamoDBShortlinkRepository
         tableName,
         keyConditionExpression,
         expressionAttributeValues,
-        filterExpression
+        filterExpression,
+        exclusiveStartKey,
+        false,
+        limit
       );
-      return result.items as ShortLinkEntity[];
+
+      // Encode lastEvaluatedKey to nextPageToken
+      const nextPageToken = result.lastEvaluatedKey
+        ? Buffer.from(JSON.stringify(result.lastEvaluatedKey)).toString(
+            'base64'
+          )
+        : undefined;
+
+      return {
+        items: result.items as ShortLinkEntity[],
+        nextPageToken
+      };
     }
 
     const result = await this.keyValueService.getItems(
       tableName,
       keyConditionExpression,
-      expressionAttributeValues
+      expressionAttributeValues,
+      undefined,
+      exclusiveStartKey,
+      false,
+      limit
     );
 
-    return result.items as ShortLinkEntity[];
+    this.logger.log(`findAll::result: ${JSON.stringify(result, null, 2)}`);
+
+    // Encode lastEvaluatedKey to nextPageToken
+    const nextPageToken = result.lastEvaluatedKey
+      ? Buffer.from(JSON.stringify(result.lastEvaluatedKey)).toString('base64')
+      : undefined;
+
+    return {
+      items: result.items as ShortLinkEntity[],
+      nextPageToken
+    };
   }
 
   async findOneBy(
     findOneShortLink: FindOneShortLink
   ): Promise<ShortLinkEntity> {
-    // Prepare the query conditions
-    const keyConditionExpression: string = 'PK = :pk AND SK = :sk)';
-    const expressionAttributeValues = {
-      ':pk': `user#${findOneShortLink.userId}`,
-      ':prefix': `shortlink#${findOneShortLink.shortCode}`
-    };
+    const { shortCode, userId } = findOneShortLink;
 
-    // Get table name from config
     const tableName = String(
       this.configService.get<string>('DYNAMO_DB_TABLE_NAME') ?? 'ShortLink'
     );
 
+    // Query via GSI
+    const indexName = 'GSI1';
+    const keyConditionExpression = 'GSI1PK = :gsiPk AND GSI1SK = :gsiSk';
+    const expressionAttributeValues = {
+      ':gsiPk': `shortcode#${shortCode}`,
+      ':gsiSk': `user#${userId}`
+    };
+
     try {
       // Log the query execution attempt
       this.logger.log(
-        `Executing query to find short link for userId: ${findOneShortLink.userId} and shortCode: ${findOneShortLink.shortCode}`
+        `Querying GSI to find shortlink for userId=${userId}, shortCode=${shortCode}`
       );
 
-      // Fetch items from the key-value store
-      const shortLinks = await this.keyValueService.getItems(
+      const result = await this.keyValueService.getItems<ShortLinkEntity>(
         tableName,
         keyConditionExpression,
-        expressionAttributeValues
+        expressionAttributeValues,
+        undefined, // no filter
+        undefined, // no pagination
+        false, // latest first
+        10,
+        indexName
       );
 
       // Check if the result is empty
-      if (!shortLinks || shortLinks.items.length === 0) {
+      if (!result || result.items.length === 0) {
         this.logger.warn(
-          `No short link found for userId: ${findOneShortLink.userId} and shortCode: ${findOneShortLink.shortCode}`
+          `No short link found via GSI for userId=${userId} and shortCode=${shortCode}`
         );
         throw new NotFoundException(
-          `ShortLink not found for the shortCode: ${findOneShortLink.shortCode}`
+          `ShortLink not found for the shortCode: ${shortCode}`
         );
       }
 
       // Return the first (and hopefully only) result
-      return shortLinks.items[0] as ShortLinkEntity;
+      return result.items[0] as ShortLinkEntity;
     } catch (error) {
       // Log the error for troubleshooting
       this.logger.error(
-        `Error while fetching short link: ${error.message}`,
+        `Error fetching via GSI for userId=${userId}, shortCode=${shortCode}: ${error.message}`,
         error.stack
       );
       throw error; // Propagate the error for higher-level handling
@@ -190,15 +248,21 @@ export class DynamoDBShortlinkRepository
         findOneShortLink,
         null,
         2
-      )} - updates: ${updates}`
+      )} - updates: ${JSON.stringify(updates, null, 2)}`
     );
 
     const tableName = String(
       this.configService.get<string>('DYNAMO_DB_TABLE_NAME') ?? 'ShortLink'
     );
 
-    const pk = `user#${findOneShortLink.userId}`;
-    const sk = `shortlink#${findOneShortLink.shortCode}`;
+    // First, find the item using GSI to get the correct PK and SK
+    const existingItem = await this.findOneBy(findOneShortLink);
+
+    if (!existingItem) {
+      throw new NotFoundException(
+        `ShortLink not found for shortCode: ${findOneShortLink.shortCode}`
+      );
+    }
 
     if (!updates || Object.keys(updates).length === 0) {
       throw new Error('No update fields provided.');
@@ -222,7 +286,7 @@ export class DynamoDBShortlinkRepository
       const result = await this.keyValueService['client'].send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: pk, SK: sk },
+          Key: { PK: existingItem.PK, SK: existingItem.SK },
           UpdateExpression: updateExpression,
           ExpressionAttributeNames: expressionAttributeNames,
           ExpressionAttributeValues: expressionAttributeValues,
@@ -233,7 +297,7 @@ export class DynamoDBShortlinkRepository
       return result.Attributes as ShortLinkEntity;
     } catch (error) {
       this.logger.error(
-        `Failed to update shortlink ${sk}: ${error.message}`,
+        `Failed to update shortlink ${existingItem.SK}: ${error.message}`,
         error.stack
       );
       throw new Error('Failed to update!');
@@ -249,33 +313,33 @@ export class DynamoDBShortlinkRepository
       )}`
     );
 
-    // Get table name from config
     const tableName = String(
       this.configService.get<string>('DYNAMO_DB_TABLE_NAME') ?? 'ShortLink'
     );
 
-    const pk = `user#${findOneShortLink.userId}`;
-    const sk = `shortlink#${findOneShortLink.shortCode}`;
-
-    // Check existence
-    const existingItems = await this.keyValueService.getItems<ShortLinkEntity>(
-      tableName,
-      'PK = :pk AND SK = :sk',
-      {
-        ':pk': pk,
-        ':sk': sk
-      }
-    );
-
-    if (!existingItems || existingItems.items.length === 0) {
-      this.logger.warn(`No shortlink found to delete: PK=${pk}, SK=${sk}`);
-      throw new NotFoundException(`ShortLink not found: ${sk}`);
-    }
-
+    // First, find the item using GSI to get the correct PK and SK
     try {
-      await this.keyValueService.deleteItem(tableName, pk, sk);
+      const existingItem = await this.findOneBy(findOneShortLink);
+
+      if (!existingItem) {
+        this.logger.warn(
+          `No shortlink found to delete for shortCode: ${findOneShortLink.shortCode}`
+        );
+        throw new NotFoundException(
+          `ShortLink not found: ${findOneShortLink.shortCode}`
+        );
+      }
+
+      await this.keyValueService.deleteItem(
+        tableName,
+        existingItem.PK,
+        existingItem.SK
+      );
       return true;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       this.logger.error(
         `Failed to delete shortlink: ${error.message}`,
         error.stack
@@ -289,29 +353,18 @@ export class DynamoDBShortlinkRepository
       `isExist::findOneShortLink: ${JSON.stringify(findOneShortLink, null, 2)}`
     );
 
-    // Get table name from config
-    const tableName = String(
-      this.configService.get<string>('DYNAMO_DB_TABLE_NAME') ?? 'ShortLink'
-    );
-
-    const pk = `user#${findOneShortLink.userId}`;
-    const sk = `shortlink#${findOneShortLink.shortCode}`;
-
-    // Check existence
-    const existingItems = await this.keyValueService.getItems<ShortLinkEntity>(
-      tableName,
-      'PK = :pk AND SK = :sk',
-      {
-        ':pk': pk,
-        ':sk': sk
+    try {
+      const item = await this.findOneBy(findOneShortLink);
+      return !!item;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return false;
       }
-    );
-
-    if (!existingItems || existingItems.items.length === 0) {
-      this.logger.warn(`No shortlink found to delete: PK=${pk}, SK=${sk}`);
+      this.logger.error(
+        `Error checking existence: ${error.message}`,
+        error.stack
+      );
       return false;
     }
-
-    return true;
   }
 }
