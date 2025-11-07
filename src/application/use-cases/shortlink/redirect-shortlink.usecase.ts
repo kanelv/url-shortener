@@ -1,21 +1,29 @@
-import { Logger } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import {
   AbstractShortLinkRepository,
   FindOneShortLink
 } from '../../../domain/contracts/repositories';
+import { ShortLinkEntity } from '../../../domain/entities';
 
 export class RedirectShortLinkUseCase {
-  constructor(private readonly urlRepository: AbstractShortLinkRepository) {}
+  constructor(
+    private readonly shortLinkRepository: AbstractShortLinkRepository
+  ) {}
 
   private readonly logger = new Logger(RedirectShortLinkUseCase.name);
 
   async execute(findOneShortLink: FindOneShortLink): Promise<string> {
-    const url = await this.urlRepository.findOneBy(findOneShortLink);
+    this.logger.debug(
+      `execute::findOneShortLink: ${JSON.stringify(findOneShortLink, null, 2)}`
+    );
 
-    if (url) {
-      return url.originalUrl;
+    const shortLinkEntity: ShortLinkEntity =
+      await this.shortLinkRepository.findOneBy(findOneShortLink);
+
+    if (shortLinkEntity) {
+      return shortLinkEntity.originalUrl;
     } else {
-      throw new Error('Resource Not Found');
+      throw new NotFoundException(`Shortlink ${findOneShortLink.shortCode}`);
     }
   }
 }

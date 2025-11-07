@@ -19,6 +19,10 @@ export abstract class AbstractKeyValueService {
    * @param expressionAttributeValues - Values for the key condition expression.
    * @param filterExpression - Optional filter expression to refine results.
    * @param exclusiveStartKey - Optional key for pagination.
+   * @param scanIndexForward - Optional scan direction.
+   * @param limit - Optional limit for number of items.
+   * @param indexName - Optional index name for GSI queries.
+   * @param expressionAttributeNames - Optional attribute name aliases for reserved keywords.
    * @returns A promise resolving to an object containing the items and an optional last evaluated key for pagination.
    * @throws Error if the operation fails or input validation fails.
    */
@@ -30,7 +34,8 @@ export abstract class AbstractKeyValueService {
     exclusiveStartKey?: Record<string, unknown>,
     scanIndexForward?: boolean,
     limit?: number,
-    indexName?: string
+    indexName?: string,
+    expressionAttributeNames?: Record<string, string>
   ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, unknown> }>;
 
   /**
@@ -49,7 +54,7 @@ export abstract class AbstractKeyValueService {
     updateExpression: string,
     expressionAttributeNames: Record<string, string>,
     expressionAttributeValues: Record<string, unknown>
-  ): Promise<void>;
+  ): Promise<any>;
 
   /**
    * Deletes an item from a key-value store.

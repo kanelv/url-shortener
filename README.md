@@ -60,7 +60,7 @@ $ aws configure list --profile localstack
    profile               localstack           manual    --profile
 access_key     ****************ummy shared-credentials-file    
 secret_key     ****************ummy shared-credentials-file    
-    region           ap-northeast-1      config-file    ~/.aws/config
+    region                us-east-1      config-file    ~/.aws/config
 ```
 
 
@@ -78,7 +78,7 @@ In ` ~/.aws/config`, add below.
 
 ```
 [profile localstack]
-region = ap-northeast-1
+region = us-east-1
 output = json
 ```
 
@@ -86,7 +86,7 @@ output = json
 
 ```bash
 # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-1.html
-aws dynamodb create-table --endpoint-url=http://localhost:4566 --region=ap-northeast-1 --profile localstack \
+aws dynamodb create-table --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack \
     --table-name MarketSubmitHistoryTable \
     --attribute-definitions \
     	AttributeName=marketSubmitId,AttributeType=S \
@@ -99,12 +99,14 @@ aws dynamodb create-table --endpoint-url=http://localhost:4566 --region=ap-north
 ```
 #### Put an Item
 ```bash
-aws dynamodb put-item --endpoint-url=http://localhost:4566 --region=ap-northeast-1 --profile localstack --table-name MarketSubmitHistoryTable --item "{\"marketSubmitId\":{\"S\":\"1\"},\"message\":{\"S\":\"sample message\"}}"
+aws dynamodb put-item --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack --table-name ShortLink --item "{\"marketSubmitId\":{\"S\":\"1\"},\"message\":{\"S\":\"sample message\"}}"
 ```
 
 #### Scan all items in the table
 ```bash
-aws dynamodb scan --endpoint-url=http://localhost:4566 --region=ap-northeast-1 --profile localstack --table-name MarketSubmitHistoryTable
+aws dynamodb scan --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack --table-name ShortLink
+
+aws dynamodb list-tables --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack
 ```
 
 ### AWS Console

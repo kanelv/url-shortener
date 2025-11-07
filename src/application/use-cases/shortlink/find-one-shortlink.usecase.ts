@@ -16,6 +16,7 @@ export class FindOneShortLinkUseCase {
     this.logger.debug(
       `execute::findOneShortLink: ${JSON.stringify(findOneShortLink, null, 2)}`
     );
+
     return await this.shortLinkRepository.findOneBy(findOneShortLink);
   }
 }

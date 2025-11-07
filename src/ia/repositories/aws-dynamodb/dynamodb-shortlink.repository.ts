@@ -1,18 +1,17 @@
-import { AbstractKeyValueService } from '@/application/services';
 import {
   AbstractShortLinkRepository,
   CreateOneShortLink,
   FindOneShortLink,
   FindShortLink
 } from '@/domain/contracts/repositories';
-import { ShortLinkEntity } from '@/domain/entities';
-import { Roles } from '@/ia/guards/role.decorator';
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
-import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
+import { AbstractKeyValueService } from '../../../application/services';
+import { ShortLinkEntity } from '../../../domain/entities';
+import { Roles } from '../../guards/role.decorator';
 
 @Injectable()
 export class DynamoDBShortlinkRepository
@@ -135,7 +134,10 @@ export class DynamoDBShortlinkRepository
 
     if (findShortLink?.active) {
       expressionAttributeValues[':status'] = true;
-      const filterExpression: string = 'status = :status';
+      const filterExpression: string = '#status = :status';
+      const expressionAttributeNames = {
+        '#status': 'status' // Alias for reserved keyword
+      };
 
       const result = await this.keyValueService.getItems(
         tableName,
@@ -144,7 +146,9 @@ export class DynamoDBShortlinkRepository
         filterExpression,
         exclusiveStartKey,
         false,
-        limit
+        limit,
+        undefined, // indexName
+        expressionAttributeNames
       );
 
       // Encode lastEvaluatedKey to nextPageToken
@@ -194,11 +198,18 @@ export class DynamoDBShortlinkRepository
 
     // Query via GSI
     const indexName = 'GSI1';
-    const keyConditionExpression = 'GSI1PK = :gsiPk AND GSI1SK = :gsiSk';
-    const expressionAttributeValues = {
-      ':gsiPk': `shortcode#${shortCode}`,
-      ':gsiSk': `user#${userId}`
-    };
+    const keyConditionExpression = userId
+      ? 'GSI1PK = :gsiPk AND GSI1SK = :gsiSk'
+      : 'GSI1PK = :gsiPk';
+
+    const expressionAttributeValues = userId
+      ? {
+          ':gsiPk': `shortcode#${shortCode}`,
+          ':gsiSk': `user#${userId}`
+        }
+      : {
+          ':gsiPk': `shortcode#${shortCode}`
+        };
 
     try {
       // Log the query execution attempt
@@ -283,18 +294,19 @@ export class DynamoDBShortlinkRepository
     const updateExpression = 'SET ' + updateExpressions.join(', ');
 
     try {
-      const result = await this.keyValueService['client'].send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: { PK: existingItem.PK, SK: existingItem.SK },
-          UpdateExpression: updateExpression,
-          ExpressionAttributeNames: expressionAttributeNames,
-          ExpressionAttributeValues: expressionAttributeValues,
-          ReturnValues: 'ALL_NEW'
-        })
+      const result = await this.keyValueService.updateItem(
+        tableName,
+        existingItem.PK,
+        existingItem.SK,
+        updateExpression,
+        expressionAttributeNames,
+        expressionAttributeValues
+      );
+      this.logger.log(
+        `Successfully updated shortlink: ${JSON.stringify(result, null, 2)}`
       );
 
-      return result.Attributes as ShortLinkEntity;
+      return result as ShortLinkEntity;
     } catch (error) {
       this.logger.error(
         `Failed to update shortlink ${existingItem.SK}: ${error.message}`,

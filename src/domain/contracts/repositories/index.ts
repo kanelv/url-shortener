@@ -1,2 +1,2 @@
-export * from './short-link.repository.abstract';
+export * from './shortlink.repository.abstract';
 export * from './user.repository.abstract';

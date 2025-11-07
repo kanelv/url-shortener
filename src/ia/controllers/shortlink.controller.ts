@@ -5,8 +5,8 @@ import {
   Get,
   Logger,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
   Request,
   Res
@@ -79,7 +79,8 @@ export class ShortLinkController {
   async findAllShortLink(
     @Request() request,
     @Query('nextPageToken') nextPageToken?: string,
-    @Query('limit') limit?: string
+    @Query('limit') limit?: string,
+    @Query('active') active?: string
   ) {
     const { user } = request;
     this.logger.debug(
@@ -87,12 +88,14 @@ export class ShortLinkController {
     );
 
     const parsedLimit = limit ? parseInt(limit, 10) : undefined;
+    const parsedActive = active === 'true' ? true : undefined;
 
     if (user.roles.includes(Role.Admin)) {
       return {
         data: await this.findAllShortLinkUseCase.execute({
           nextPageToken,
-          limit: parsedLimit
+          limit: parsedLimit,
+          active: parsedActive
         })
       };
     } else if (user.roles.includes(Role.User)) {
@@ -100,30 +103,19 @@ export class ShortLinkController {
         data: await this.findAllShortLinkUseCase.execute({
           userId: user.id,
           nextPageToken,
-          limit: parsedLimit
+          limit: parsedLimit,
+          active: parsedActive
         })
       };
     } else {
       return {
         data: await this.findAllShortLinkUseCase.execute({
           nextPageToken,
-          limit: parsedLimit
+          limit: parsedLimit,
+          active: parsedActive
         })
       };
     }
-  }
-
-  @Get()
-  async findAllActiveShortLink(@Request() request) {
-    const { userId } = request;
-    this.logger.debug(`findAllActiveShortLink::userId: ${userId}`);
-
-    return {
-      data: await this.findAllActiveShortLinkUseCase.execute({
-        userId,
-        active: true
-      })
-    };
   }
 
   /**
@@ -151,19 +143,27 @@ export class ShortLinkController {
     };
   }
 
-  @Public()
-  @Get('/:shortCode')
-  async redirect(@Res() res, @Param('shortCode') shortCode: string) {
-    this.logger.debug(`redirect:shortCode: ${shortCode}`);
+  @Patch(':shortCode/deactivate')
+  @Roles(Role.User, Role.Admin)
+  async deactivateShortLink(
+    @Request() request,
+    @Param('shortCode') shortCode: string
+  ) {
+    const { user } = request;
+    this.logger.debug(
+      `deactivateShortLink::user: ${JSON.stringify(
+        user,
+        null,
+        2
+      )} - shortCode: ${shortCode}`
+    );
 
-    const originalUrl = await this.redirectShortLinkUseCase.execute({
-      shortCode
-    });
-
-    return res.redirect(originalUrl);
+    return {
+      data: await this.deactivateShortLinkUseCase.execute(user.id, shortCode)
+    };
   }
 
-  @Put(':shortCode/activate')
+  @Patch(':shortCode/activate')
   @Roles(Role.User, Role.Admin)
   async activateShortLink(
     @Request() request,
@@ -178,27 +178,12 @@ export class ShortLinkController {
       )} - shortCode: ${shortCode}`
     );
 
-    return this.activateShortLinkUseCase.execute(user.id, shortCode);
+    return {
+      data: await this.activateShortLinkUseCase.execute(user.id, shortCode)
+    };
   }
 
-  @Put(':shortCode/deactivate')
-  @Roles(Role.User, Role.Admin)
-  async deactivateShortLink(
-    @Request() request,
-    @Param('shortCode') shortCode: string
-  ) {
-    const { user } = request;
-    this.logger.debug(
-      `deactivateShortLink::user: ${JSON.stringify(
-        user,
-        null,
-        2
-      )} - shortCode: ${shortCode}`
-    );
-    return this.deactivateShortLinkUseCase.execute(user.id, shortCode);
-  }
-
-  @Put(':shortCode/extend')
+  @Patch(':shortCode/extend')
   @Roles(Role.User, Role.Admin)
   async extendShortLink(
     @Request() request,
@@ -214,7 +199,34 @@ export class ShortLinkController {
       )} - shortCode: ${shortCode} - days: ${days}`
     );
 
-    return this.extendShortLinkExpiryUseCase.execute(user.id, shortCode, days);
+    return {
+      data: await this.extendShortLinkExpiryUseCase.execute(
+        user.id,
+        shortCode,
+        days
+      )
+    };
+  }
+
+  @Public()
+  @Get('/:shortCode/redirect')
+  async redirect(@Res() res, @Param('shortCode') shortCode: string) {
+    try {
+      this.logger.debug(`redirect:shortCode: ${shortCode}`);
+
+      const originalUrl = await this.redirectShortLinkUseCase.execute({
+        shortCode
+      });
+
+      res.redirect(originalUrl);
+    } catch (error) {
+      this.logger.error(
+        `redirect error for shortCode ${shortCode}:`,
+        error.message,
+        error.stack
+      );
+      res.status(404).send('Short link not found or has expired');
+    }
   }
 
   /**

@@ -131,7 +131,8 @@ export class DynamoDBKeyValueService implements AbstractKeyValueService {
     exclusiveStartKey?: Record<string, unknown>,
     scanIndexForward: boolean = false,
     limit: number = 10,
-    indexName?: string
+    indexName?: string,
+    expressionAttributeNames?: Record<string, string>
   ): Promise<{ items: T[]; lastEvaluatedKey?: Record<string, unknown> }> {
     if (!tableName)
       throw new InternalServerErrorException('Table name is required');
@@ -154,6 +155,9 @@ export class DynamoDBKeyValueService implements AbstractKeyValueService {
       ExpressionAttributeValues: expressionAttributeValues,
       ...(filterExpression && { FilterExpression: filterExpression }),
       ...(exclusiveStartKey && { ExclusiveStartKey: exclusiveStartKey }),
+      ...(expressionAttributeNames && {
+        ExpressionAttributeNames: expressionAttributeNames
+      }),
       ScanIndexForward: scanIndexForward, // false = descending order (newest first)
       Limit: limit, // optional: limit number of result
       ...(indexName && { IndexName: indexName })
@@ -204,7 +208,7 @@ export class DynamoDBKeyValueService implements AbstractKeyValueService {
     updateExpression: string,
     expressionAttributeNames: Record<string, string>,
     expressionAttributeValues: Record<string, unknown>
-  ): Promise<void> {
+  ): Promise<any> {
     if (!tableName)
       throw new InternalServerErrorException('Table name is required');
     if (!pk || !sk)
@@ -223,7 +227,7 @@ export class DynamoDBKeyValueService implements AbstractKeyValueService {
     }
 
     try {
-      await this.dynamoDb.send(
+      return await this.dynamoDb.send(
         new UpdateCommand({
           TableName: tableName,
           Key: {

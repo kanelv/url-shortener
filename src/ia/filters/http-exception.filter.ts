@@ -18,6 +18,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
+    // Check if headers are already sent (e.g., from res.redirect())
+    if (response.headersSent) {
+      this.logger.warn(
+        `Cannot send error response for ${request.method} ${request.url} - headers already sent`
+      );
+      return;
+    }
+
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let error = 'Internal Server Error';

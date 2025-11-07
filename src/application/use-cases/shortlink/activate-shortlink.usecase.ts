@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { AbstractShortLinkRepository } from '../../../domain/contracts/repositories';
+import { ShortLinkEntity } from '../../../domain/entities';
 
 export class ActivateShortLinkUseCase {
   private readonly logger = new Logger(ActivateShortLinkUseCase.name);
@@ -18,38 +19,50 @@ export class ActivateShortLinkUseCase {
    * @param userId - The ID of the user who owns the shortlink.
    * @param shortCode - The shortlink code to deactivate.
    */
-  async execute(userId: string, shortCode: string): Promise<void> {
+  async execute(userId: string, shortCode: string): Promise<ShortLinkEntity> {
     if (!userId || !shortCode) {
       throw new InternalServerErrorException(
         'userId and shortCode are required'
       );
     }
 
-    const shortlink = await this.shortLinkRepository.findOneBy({
-      userId,
-      shortCode
-    });
+    // Find the existing shortlink
+    const shortLinkEntity: ShortLinkEntity =
+      await this.shortLinkRepository.findOneBy({
+        userId,
+        shortCode
+      });
 
-    if (!shortlink) {
-      throw new NotFoundException(
-        `Shortlink ${shortCode} not found for user ${userId}`
-      );
+    if (!shortLinkEntity) {
+      throw new NotFoundException(`Shortlink ${shortCode} for user ${userId}`);
     }
 
     this.logger.debug(
-      `execute::shortLinkRepository::findOne ${JSON.stringify(
-        shortlink,
-        null,
-        2
-      )}`
+      `shortLinkEntity: ${JSON.stringify(shortLinkEntity, null, 2)}`
     );
 
-    await this.shortLinkRepository.updateOne(
-      { userId, shortCode },
-      {
-        status: true,
-        updatedAt: dayjs().toISOString()
-      }
+    // Check if already activated - early return to avoid unnecessary DB call
+    if (shortLinkEntity.status === true) {
+      this.logger.debug(
+        `Shortlink ${shortCode} is already activated, skipping update`
+      );
+      return shortLinkEntity; // Already activated, no update needed
+    }
+
+    // Only update if status is currently false
+    const updatedShortLink: ShortLinkEntity =
+      await this.shortLinkRepository.updateOne(
+        { userId, shortCode },
+        {
+          status: true,
+          updatedAt: dayjs().toISOString()
+        }
+      );
+
+    this.logger.debug(
+      `execute::activated ${JSON.stringify(updatedShortLink, null, 2)}`
     );
+
+    return updatedShortLink;
   }
 }
