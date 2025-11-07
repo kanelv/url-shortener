@@ -1,6 +1,7 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import dayjs from 'dayjs';
 import { AbstractShortLinkRepository } from '../../../domain/contracts/repositories';
+import { ShortLinkEntity } from '../../../domain/entities';
 
 export class ExtendShortLinkExpiryUseCase {
   private readonly logger = new Logger(ExtendShortLinkExpiryUseCase.name);
@@ -13,54 +14,58 @@ export class ExtendShortLinkExpiryUseCase {
    * Extends the expiry date of a shortlink.
    * @param userId - The ID of the user who owns the shortlink.
    * @param shortCode - The shortlink code.
-   * @param newExpiryDate - The new expiration date (ISO string).
+   * @param days - Number of days to extend the expiry by.
    */
   async execute(
     userId: string,
     shortCode: string,
-    newExpiryDate: string
-  ): Promise<void> {
+    days: string | number
+  ): Promise<ShortLinkEntity> {
     if (!userId || !shortCode) {
       throw new BadRequestException('userId and shortCode are required');
     }
-    if (!newExpiryDate) {
-      throw new BadRequestException('newExpiryDate is required');
+    if (!days) {
+      throw new BadRequestException('days is required');
     }
 
+    const daysToExtend = typeof days === 'string' ? parseInt(days, 10) : days;
+
+    if (isNaN(daysToExtend) || daysToExtend <= 0) {
+      throw new BadRequestException('days must be a positive number');
+    }
     const shortlink = await this.shortLinkRepository.findOneBy({
       userId,
       shortCode
     });
     if (!shortlink) {
-      throw new NotFoundException(
-        `Shortlink ${shortCode} not found for user ${userId}`
-      );
+      throw new NotFoundException(`Shortlink ${shortCode} for user ${userId}`);
     }
+
+    // Calculate new expiry by adding days to current expiry
 
     const currentExpiry = shortlink.expiresAt
       ? dayjs(shortlink.expiresAt)
-      : null;
-    const newExpiry = dayjs(newExpiryDate);
+      : dayjs();
+    const newExpiry = currentExpiry.add(daysToExtend, 'day');
 
-    if (!newExpiry.isValid()) {
-      throw new BadRequestException(
-        'newExpiryDate must be a valid ISO date string'
-      );
-    }
-
-    // Prevent rolling back or shortening expiry
-    if (currentExpiry && newExpiry.isBefore(currentExpiry)) {
-      throw new BadRequestException(
-        'New expiry must be later than the current expiry'
-      );
-    }
-
-    await this.shortLinkRepository.updateOne(
-      { userId, shortCode },
-      {
-        expiresAt: newExpiry.unix(), // store as UNIX timestamp for DynamoDB TTL
-        updatedAt: new Date().toISOString()
-      }
+    this.logger.debug(
+      `Extending shortlink ${shortCode} by ${daysToExtend} days: ${currentExpiry.format()} -> ${newExpiry.format()}`
     );
+
+    const updatedShortLink: ShortLinkEntity =
+      await this.shortLinkRepository.updateOne(
+        { userId, shortCode },
+        {
+          expiresAt: newExpiry.valueOf(), // store as milliseconds timestamp
+
+          updatedAt: dayjs().toISOString()
+        }
+      );
+
+    this.logger.log(
+      `Successfully extended shortlink ${shortCode} by ${daysToExtend} days`
+    );
+
+    return updatedShortLink;
   }
 }
