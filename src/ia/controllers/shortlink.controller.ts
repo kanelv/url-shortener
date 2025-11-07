@@ -231,8 +231,7 @@ export class ShortLinkController {
 
   /**
    * TODO: need to be response for:
-   * - a guest user
-   * - a signed user
+   * - user
    * - admin
    * TODO: the param should accept both Id and originalUrl
    * @param findOneUserByIdDto
