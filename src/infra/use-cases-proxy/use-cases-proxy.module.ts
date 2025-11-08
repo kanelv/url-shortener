@@ -5,7 +5,6 @@ import {
   DeactivateShortLinkUseCase,
   DeleteShortLinkUseCase,
   ExtendShortLinkExpiryUseCase,
-  FindAllActiveShortLinkUseCase,
   FindAllShortLinkUseCase,
   FindOneShortLinkUseCase,
   RedirectShortLinkUseCase
@@ -98,12 +97,6 @@ export class UseCasesProxyModule {
         },
         {
           inject: [AbstractShortLinkRepository],
-          provide: FindAllActiveShortLinkUseCase,
-          useFactory: (urlRepository: AbstractShortLinkRepository) =>
-            new FindAllActiveShortLinkUseCase(urlRepository)
-        },
-        {
-          inject: [AbstractShortLinkRepository],
           provide: FindOneShortLinkUseCase,
           useFactory: (urlRepository: AbstractShortLinkRepository) =>
             new FindOneShortLinkUseCase(urlRepository)
@@ -148,7 +141,6 @@ export class UseCasesProxyModule {
         DeleteUserUseCase,
         CreateShortLinkUseCase,
         FindAllShortLinkUseCase,
-        FindAllActiveShortLinkUseCase,
         FindOneShortLinkUseCase,
         ExtendShortLinkExpiryUseCase,
         ActivateShortLinkUseCase,

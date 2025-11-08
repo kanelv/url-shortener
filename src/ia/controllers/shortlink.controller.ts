@@ -18,7 +18,6 @@ import {
   DeactivateShortLinkUseCase,
   DeleteShortLinkUseCase,
   ExtendShortLinkExpiryUseCase,
-  FindAllActiveShortLinkUseCase,
   FindAllShortLinkUseCase,
   FindOneShortLinkUseCase,
   RedirectShortLinkUseCase
@@ -36,7 +35,6 @@ export class ShortLinkController {
   constructor(
     private readonly createShortLinkUseCase: CreateShortLinkUseCase,
     private readonly findAllShortLinkUseCase: FindAllShortLinkUseCase,
-    private readonly findAllActiveShortLinkUseCase: FindAllActiveShortLinkUseCase,
     private readonly findOneShortLinkUseCase: FindOneShortLinkUseCase,
     private readonly extendShortLinkExpiryUseCase: ExtendShortLinkExpiryUseCase,
     private readonly activateShortLinkUseCase: ActivateShortLinkUseCase,

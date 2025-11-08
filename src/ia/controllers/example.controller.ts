@@ -8,18 +8,24 @@ export class ExampleController {
   @Public()
   @Get('guest')
   async guestEndpoint() {
-    return 'Accessible by Guest, User, and Admin';
+    return {
+      data: 'Accessible by Guest, User, and Admin'
+    };
   }
 
   @Get('user')
   @Roles(Role.User)
   async userEndpoint() {
-    return 'Accessible by User, and Admin';
+    return {
+      data: 'Accessible by User, and Admin'
+    };
   }
 
   @Get('admin')
   @Roles(Role.Admin)
   async adminEndpoint() {
-    return 'Accessible by Admin only';
+    return {
+      data: 'Accessible by Admin only'
+    };
   }
 }
