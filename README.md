@@ -124,6 +124,8 @@ To generate new migration.sql script for new changes on database schema
 npm run migration:generate src/core/database/migrations/<name_of_new_changes>
 
 npm run migration:generate src/infra/frameworks/database/migrations/change_userName_to_username_on_user_table
+
+npm run migration:generate src/infra/frameworks/database/migrations/change_id_to_string_on_user_table
 ```
 
 To apply new change on database

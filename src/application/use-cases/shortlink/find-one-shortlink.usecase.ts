@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import {
   AbstractShortLinkRepository,
   FindOneShortLink
@@ -17,6 +17,14 @@ export class FindOneShortLinkUseCase {
       `execute::findOneShortLink: ${JSON.stringify(findOneShortLink, null, 2)}`
     );
 
-    return await this.shortLinkRepository.findOneBy(findOneShortLink);
+    const shortlink: ShortLinkEntity = await this.shortLinkRepository.findOneBy(
+      findOneShortLink
+    );
+
+    if (!shortlink) {
+      throw new NotFoundException('Not found shortlink');
+    }
+
+    return shortlink;
   }
 }

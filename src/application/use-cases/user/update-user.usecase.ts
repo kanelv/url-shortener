@@ -39,11 +39,9 @@ export class UpdateUserUseCase {
 
     const { password, ...remainUserDetail } = updateUserDto;
 
-    let encryptedPassword = null;
-
-    if (password) {
-      encryptedPassword = await this.bcryptService.hash(password);
-    }
+    const encryptedPassword = password
+      ? await this.bcryptService.hash(password)
+      : '';
 
     const handledUpdateUser = encryptedPassword
       ? { password: encryptedPassword, ...remainUserDetail }

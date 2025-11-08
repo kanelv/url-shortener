@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { TestingModule } from '@nestjs/testing';
 import MockDate from 'mockdate';
 import request from 'supertest';
@@ -7,6 +8,7 @@ import {
   CreateOneUser
 } from '../src/domain/contracts/repositories';
 import { Role } from '../src/domain/entities/enums';
+import { AbstractBcryptService } from '../src/domain/services';
 import { SignUpUserDto, UpdateUserDto } from '../src/ia/dto/user';
 import { e2eSetup } from './common/e2e-setup';
 import { e2eTearDown } from './common/e2e-tear-down';
@@ -15,9 +17,10 @@ describe('User (e2e)', () => {
   let module: TestingModule;
   let app: INestApplication;
   let userRepository: AbstractUserRepository;
-
-  const accessToken =
-    'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoic2FtcGxlMSIsImVtYWlsIjpudWxsLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3NDUwNTQ1MDcsImV4cCI6MTc0NTE0MDkwNywiaXNzIjoiS2FuZSBJbmMuIn0.XWZG0pcR3QJCSHHbkuPKhXFrZzJT01w3ZZHOY2YmIPQydAIyPeAyUFLQ_DJmqtpjEJq1r7H6Jj2rMQfpHuDCa71JpHmisa1EGLTDMRJWaKpadaymZsgmrnvr9eZ3Wu642fC5ix5lNfIMq6XdCPq7vs5JucA238aS90fqLNV_5-3WnxXqjTRiEfGiP1ldRZ3jhFqGdsG1FQkv9QE5Ft6WwvKv-uX8eHUJypHe4mmB3XbiIEZm0efW0XFe9_blhJyQiv9JipBOUCm2qO209N1qk0l0YlR_QAUtK6g3zv4dLaWGgqnWRUzDixnyp0WemAj_KP-FhhDqyFTam21APF9Kug';
+  let jwtService: JwtService;
+  let bcryptService: AbstractBcryptService;
+  let accessToken: string;
+  let adminUser: any;
 
   beforeEach(async () => {
     const setup = await e2eSetup();
@@ -25,6 +28,30 @@ describe('User (e2e)', () => {
     app = setup.app;
 
     userRepository = module.get<AbstractUserRepository>(AbstractUserRepository);
+    jwtService = module.get<JwtService>(JwtService);
+    bcryptService = module.get<AbstractBcryptService>(AbstractBcryptService);
+
+    // Create an admin user for testing
+    const hashedPassword = await bcryptService.hash('admin123');
+    adminUser = await userRepository.create({
+      username: 'adminuser',
+      password: hashedPassword
+    });
+
+    // Manually update the role to admin (since create doesn't support role)
+    await userRepository.updateOne({
+      findOneUser: { id: adminUser.id },
+      updateUser: { role: Role.Admin }
+    });
+
+    // Generate a valid JWT token for the admin user
+    const payload = {
+      sub: adminUser.id,
+      username: 'adminuser',
+      email: null,
+      roles: [Role.Admin]
+    };
+    accessToken = await jwtService.signAsync(payload);
   });
 
   afterEach(async () => {
@@ -109,6 +136,15 @@ describe('User (e2e)', () => {
             email: null,
             id: expect.any(String),
             isActive: true,
+            role: 'admin',
+            updatedAt: expect.any(String),
+            username: 'adminuser'
+          },
+          {
+            createdAt: expect.any(String),
+            email: null,
+            id: expect.any(String),
+            isActive: true,
             role: 'user',
             updatedAt: expect.any(String),
             username: 'sample1'
@@ -162,36 +198,29 @@ describe('User (e2e)', () => {
       });
     });
 
-    it('should return 400 Bad Request and data when successfully requesting', async () => {
-      MockDate.set('2024-03-26T03:03:00.000');
-
-      const createOneUser1: CreateOneUser = {
-        username: 'sample1',
-        password: 'sample1'
-      };
-
-      const createdResult = await userRepository.create(createOneUser1);
+    it('should return 404 Not Found when requesting non-existent user', async () => {
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
 
       const response = await request(app.getHttpServer())
-        .get(`/v1/users/${createdResult.id}`)
+        .get(`/v1/users/${nonExistentId}`)
         .set('Cookie', [`accessToken=${accessToken}`])
-        .expect(200);
+        .expect(404);
 
-      expect(response.body).toEqual({
-        data: {
-          createdAt: expect.any(String),
-          email: null,
-          id: expect.any(String),
-          isActive: true,
-          role: 'user',
-          updatedAt: expect.any(String),
-          username: 'sample1'
-        },
-        message: 'Success',
-        statusCode: 200,
-        timestamp: expect.any(String)
-      });
+      expect(response.body.statusCode).toBe(404);
     });
+
+    // it('should return 401 Unauthorized when no access token provided', async () => {
+    //   const createOneUser1: CreateOneUser = {
+    //     username: 'sample1',
+    //     password: 'sample1'
+    //   };
+
+    //   const createdResult = await userRepository.create(createOneUser1);
+
+    //   await request(app.getHttpServer())
+    //     .get(`/v1/users/${createdResult.id}`)
+    //     .expect(401);
+    // });
   });
 
   describe('PATCH /v1/users/:id', () => {
@@ -223,29 +252,29 @@ describe('User (e2e)', () => {
     });
   });
 
-  // describe('DELETE /v1/users/:id', () => {
-  //   it('returns 200 OK and data when successfully requesting', async () => {
-  //     MockDate.set('2024-03-26T03:03:00.000');
+  describe('DELETE /v1/users/:id', () => {
+    it('returns 200 OK and data when successfully requesting', async () => {
+      MockDate.set('2024-03-26T03:03:00.000');
 
-  //     const createOneUser1: CreateOneUser = {
-  //       username: 'sample1',
-  //       password: 'sample1'
-  //     };
-  //     const createdResult = await userRepository.create(createOneUser1);
-  //     console.log(`createdResult: ${JSON.stringify(createdResult, null, 2)}`);
+      const createOneUser1: CreateOneUser = {
+        username: 'sample1',
+        password: 'sample1'
+      };
+      const createdResult = await userRepository.create(createOneUser1);
+      console.log(`createdResult: ${JSON.stringify(createdResult, null, 2)}`);
 
-  //     const response = await request(app.getHttpServer())
-  //       .delete(`/v1/users/${createdResult.id}`)
-  //       .set('Cookie', [`accessToken=${accessToken}`])
-  //       .send()
-  //       .expect(200);
+      const response = await request(app.getHttpServer())
+        .delete(`/v1/users/${createdResult.id}`)
+        .set('Cookie', [`accessToken=${accessToken}`])
+        .send()
+        .expect(200);
 
-  //     expect(response.body).toEqual({
-  //       data: true,
-  //       message: 'Success',
-  //       statusCode: 200,
-  //       timestamp: expect.any(String)
-  //     });
-  //   });
-  // });
+      expect(response.body).toEqual({
+        data: true,
+        message: 'Success',
+        statusCode: 200,
+        timestamp: expect.any(String)
+      });
+    });
+  });
 });

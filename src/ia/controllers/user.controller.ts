@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Logger,
   Param,
@@ -75,8 +76,8 @@ export class UserController {
   }
 
   /**
-   * @param findOneUserByIdDto
    * @param request
+   * @param findOneUserByIdDto
    * @returns
    */
   @Get(':id')
@@ -99,16 +100,19 @@ export class UserController {
 
     const { user } = request;
 
-    if (user.id === findOneUserByIdDto.id || user.roles.contains(Role.Admin)) {
+    if (user.id === findOneUserByIdDto.id || user.roles.includes(Role.Admin)) {
       return {
         data: await this.findOneUserUseCase.execute(findOneUserByIdDto)
       };
     } else {
-      throw new Error('You are not allowed to access this resource');
+      throw new ForbiddenException(
+        'You are not allowed to access this resource'
+      );
     }
   }
 
   /**
+   * @param request
    * @param findOneUserByIdDto
    * @param updateUserDto
    * @returns
@@ -130,7 +134,13 @@ export class UserController {
 
     const { user } = request;
 
-    if (user.id === findOneUserByIdDto.id || user.roles.contains(Role.Admin)) {
+    // Only admins can update role
+    if (updateUserDto?.role && !user.roles.includes(Role.Admin)) {
+      throw new ForbiddenException('Only admins can update user roles');
+    }
+
+    // Users can update their own profile, admins can update any profile
+    if (user.id === findOneUserByIdDto.id || user.roles.includes(Role.Admin)) {
       return {
         data: await this.updateUserUseCase.execute(
           findOneUserByIdDto,
@@ -138,11 +148,14 @@ export class UserController {
         )
       };
     } else {
-      throw new Error('You are not allowed to access this resource');
+      throw new ForbiddenException(
+        'You are not allowed to access this resource'
+      );
     }
   }
 
   /**
+   * @param request
    * @param findOneUserByIdDto
    * @returns
    */
@@ -162,12 +175,15 @@ export class UserController {
 
     const { user } = request;
 
-    if (user.id === findOneUserByIdDto.id || user.roles.contains(Role.Admin)) {
+    // Users can delete their own profile, admins can delete any profile
+    if (user.id === findOneUserByIdDto.id || user.roles.includes(Role.Admin)) {
       return {
         data: await this.deleteUserUseCase.execute(findOneUserByIdDto)
       };
     } else {
-      throw new Error('You are not allowed to access this resource');
+      throw new ForbiddenException(
+        'You are not allowed to access this resource'
+      );
     }
   }
 }

@@ -50,8 +50,7 @@ export class UserRepository implements AbstractUserRepository {
     return handledUsers;
   }
 
-  // TODO: need to be updated return type
-  async findOneBy(findOneUser: FindOneUser): Promise<User> {
+  async findOneBy(findOneUser: FindOneUser): Promise<User | null> {
     this.logger.debug(
       `findOne::findOneUser: ${JSON.stringify(findOneUser, null, 2)}`
     );
@@ -62,10 +61,6 @@ export class UserRepository implements AbstractUserRepository {
     this.logger.debug(
       `findOne::passiveUser: ${JSON.stringify(passiveUser, null, 2)}`
     );
-
-    if (!passiveUser) {
-      throw new Error(`Not found User has ${findOneUser}`);
-    }
 
     return passiveUser;
   }
@@ -101,12 +96,16 @@ export class UserRepository implements AbstractUserRepository {
     }
   }
 
-  async isExist(conditions: UserEntity & { id: string }): Promise<boolean> {
+  async isExist(
+    conditions: Partial<Omit<UserEntity, 'urls'> & { id: string }>
+  ): Promise<boolean> {
     this.logger.debug(
       `isExist::conditions: ${JSON.stringify(conditions, null, 2)}`
     );
-    return await this.userRepository.exists({
+    const count = await this.userRepository.count({
       where: conditions
     });
+
+    return count > 0;
   }
 }

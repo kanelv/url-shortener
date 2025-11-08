@@ -189,7 +189,7 @@ export class DynamoDBShortlinkRepository
 
   async findOneBy(
     findOneShortLink: FindOneShortLink
-  ): Promise<ShortLinkEntity> {
+  ): Promise<ShortLinkEntity | null> {
     const { shortCode, userId } = findOneShortLink;
 
     const tableName = String(
@@ -230,12 +230,7 @@ export class DynamoDBShortlinkRepository
 
       // Check if the result is empty
       if (!result || result.items.length === 0) {
-        this.logger.warn(
-          `No short link found via GSI for userId=${userId} and shortCode=${shortCode}`
-        );
-        throw new NotFoundException(
-          `ShortLink not found for the shortCode: ${shortCode}`
-        );
+        return null;
       }
 
       // Return the first (and hopefully only) result

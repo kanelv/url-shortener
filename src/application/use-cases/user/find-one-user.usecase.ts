@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import {
   AbstractUserRepository,
   FindOneUser
@@ -7,9 +8,15 @@ export class FindOneUserUseCase {
   constructor(private readonly userRepository: AbstractUserRepository) {}
 
   async execute(findOneUser: FindOneUser): Promise<any> {
-    const foundUser = await this.userRepository.findOneBy(findOneUser);
+    const existingUser = await this.userRepository.findOneBy(findOneUser);
 
-    const { password, ...userWithoutPassword } = foundUser;
+    if (!existingUser) {
+      throw new NotFoundException(
+        `Not found user with userId: ${findOneUser.id}`
+      );
+    }
+
+    const { password, ...userWithoutPassword } = existingUser;
 
     return userWithoutPassword;
   }

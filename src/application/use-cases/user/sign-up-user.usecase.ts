@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { ConflictException, Logger } from '@nestjs/common';
 import {
   AbstractUserRepository,
   CreateOneUser
@@ -28,7 +28,9 @@ export class SignUpUserUseCase {
     });
 
     if (exist) {
-      throw new Error(`Username ${createOneUser.username} is already exist`);
+      throw new ConflictException(
+        `Username ${createOneUser.username} is already exist`
+      );
     }
 
     const encryptedPassword = await this.bcryptService.hash(

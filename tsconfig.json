@@ -31,6 +31,7 @@
   },
   "include": [
     "src/**/*",
-    "src/utils/types/jest.d.ts"
+    "src/utils/types/jest.d.ts",
+    "test/**/*"
   ]
 }

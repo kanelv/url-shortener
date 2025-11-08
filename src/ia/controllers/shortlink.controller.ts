@@ -58,7 +58,9 @@ export class ShortLinkController {
       userId: user.id,
       originalUrl
     });
-    this.logger.debug(`shortenUrl::shortLink: ${shortLink}`);
+    this.logger.debug(
+      `shortenUrl::shortLink: ${JSON.stringify(shortLink, null, 2)}`
+    );
 
     return {
       data: shortLink
@@ -91,6 +93,7 @@ export class ShortLinkController {
     if (user.roles.includes(Role.Admin)) {
       return {
         data: await this.findAllShortLinkUseCase.execute({
+          userId: user.id,
           nextPageToken,
           limit: parsedLimit,
           active: parsedActive

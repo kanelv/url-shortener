@@ -24,7 +24,6 @@ export class AuthController {
     );
 
     const accessToken = await this.signInUserUseCase.execute(signInUserDto);
-
     const cookieOptions: CookieOptions = {
       maxAge: this.configService.get('MAX_AGE', 60 * 60 * 1000), // In milliseconds
       httpOnly: this.configService.get('HTTP_ONLY', true),

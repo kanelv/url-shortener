@@ -35,36 +35,36 @@ export class SignInUserUseCase {
   async execute(signIn: SignIn): Promise<string> {
     this.logger.debug(`execute::signIn: ${JSON.stringify(signIn, null, 2)}`);
 
-    const foundUser = await this.userRepository.findOneBy({
+    const existingUser = await this.userRepository.findOneBy({
       username: signIn.username
     });
 
-    if (!foundUser) {
-      throw new Error(`Not found User that has ${signIn.username}`);
+    if (!existingUser) {
+      throw new UnauthorizedException('username or password is incorrect');
     }
     this.logger.debug(
-      `execute::foundUser: ${JSON.stringify(foundUser, null, 2)}`
+      `execute::existingUser: ${JSON.stringify(existingUser, null, 2)}`
     );
 
-    if (!foundUser || !foundUser.isActive) {
-      throw new UnauthorizedException();
+    if (!existingUser || !existingUser.isActive) {
+      throw new UnauthorizedException('username or password is incorrect');
     }
 
     const isPasswordCorrect = await this.bcryptService.compare(
       signIn.password,
-      foundUser.password
+      existingUser.password
     );
 
     if (!isPasswordCorrect) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('username or password is incorrect');
     }
 
     // TODO: add expiration for generated token
     const payload = {
-      sub: foundUser.id,
-      username: foundUser.username,
-      email: foundUser.email,
-      roles: [foundUser.role]
+      sub: existingUser.id,
+      username: existingUser.username,
+      email: existingUser.email,
+      roles: [existingUser.role]
     };
     this.logger.debug(`execute::payload: ${JSON.stringify(payload, null, 2)}`);
 
