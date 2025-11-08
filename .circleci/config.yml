@@ -14,6 +14,13 @@ jobs:
           # POSTGRES_SCHEMA: test
           # TZ: 'GMT+7'
           # PGTZ: 'GMT+7'
+      - image: localstack/localstack:4.9.1
+        environment:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_DEFAULT_REGION: us-east-1
+          DEFAULT_REGION: us-east-1
+          SERVICES: s3,dynamodb
     parallelism: 5
     environment:
       NODE_ENV: test
