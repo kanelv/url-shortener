@@ -1,115 +1,64 @@
-# URL SHORTENER
+# URL Shortener
 
-An URL-Shortener API app using NestJS that is a framework based on typescript
+A URL shortener API built with NestJS and TypeScript, featuring PostgreSQL for relational data storage and DynamoDB for distributed storage capabilities.
 
-## API Specification
+## Table of Contents
 
-## Setup
+- [URL Shortener](#url-shortener)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Tech Stack](#tech-stack)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Setup](#setup)
+    - [Environment Variables](#environment-variables)
+      - [CircleCI](#circleci)
+      - [Local Development](#local-development)
+    - [Database Setup](#database-setup)
+      - [PostgreSQL with Docker](#postgresql-with-docker)
+      - [Troubleshooting: "Permission denied" Error on macOS](#troubleshooting-permission-denied-error-on-macos)
+    - [AWS DynamoDB Setup](#aws-dynamodb-setup)
+      - [Localstack Configuration](#localstack-configuration)
+      - [Create DynamoDB Table](#create-dynamodb-table)
+      - [DynamoDB Utility Commands](#dynamodb-utility-commands)
+  - [Database Migrations](#database-migrations)
+    - [Generate New Migration](#generate-new-migration)
+    - [Apply Migrations](#apply-migrations)
+    - [Rollback Migrations](#rollback-migrations)
+  - [Running the Application](#running-the-application)
+  - [Testing](#testing)
+  - [CI/CD](#cicd)
+    - [Running CircleCI Locally](#running-circleci-locally)
+    - [Debug with SSH on CircleCI](#debug-with-ssh-on-circleci)
+  - [References](#references)
+    - [System Design \& Architecture](#system-design--architecture)
+    - [Database Hosting](#database-hosting)
+  - [Author](#author)
 
-### Environment Variables
+## Features
 
-#### On CircleCI
+- URL shortening and redirection
+- PostgreSQL database integration
+- DynamoDB support for scalable storage
+- RESTful API endpoints
+- Comprehensive test coverage
+- CircleCI integration
 
-Please add any environment variables to CircleCI under `jobs.build-and-test.environment` in `.circleci/config.yml`.
+## Tech Stack
 
-#### On Local
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Databases**: PostgreSQL, AWS DynamoDB
+- **Containerization**: Docker
+- **CI/CD**: CircleCI
+- **Testing**: Jest
 
-Please create .env file in the root directory of this project.
+## Prerequisites
 
-### Local Environment
-
-**Docker**
-
-Please run these commands below to set up a postgres docker running container on your machine
-
-```bash
-# Give the 1_connect.sh file execute permission
-chmod +x ./docker/postgres/init/1_connect.sh
-
-# Run postgresql(port: 5432)
-docker-compose -f ./docker/docker-compose.yml up -d
-```
-
-#### "Permission denied" error
-
-When you are running docker on MacOS, you may get the following error.
-
-```shell
-chmod: /var/lib/postgresql/data: Permission denied
-find: /var/lib/postgresql/data: Permission denied
-chown: /var/lib/postgresql/data: Permission denied
-```
-
-In this case, run the following command.
-
-```shell
- sudo chmod -R 777 ./docker/postgres/data
-```
-
-## AWS DynamoDB
-### Localstack
-
-In the local environment, we use localstack to emulate AWS.
-
-Check if you have profile called localstack
-
-```
-$ aws configure list --profile localstack
-      Name                    Value             Type    Location
-      ----                    -----             ----    --------
-   profile               localstack           manual    --profile
-access_key     ****************ummy shared-credentials-file    
-secret_key     ****************ummy shared-credentials-file    
-    region                us-east-1      config-file    ~/.aws/config
-```
-
-
-If you have not set up localstack profile, add profile as below.
-
-In `~/.aws/credentials`, add below.
-
-```txt
-[localstack]
-aws_access_key_id = dummy
-aws_secret_access_key = dummy
-```
-
-In ` ~/.aws/config`, add below.
-
-```
-[profile localstack]
-region = us-east-1
-output = json
-```
-
-#### Create DynamoDB Table in localstack by command
-
-```bash
-# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-1.html
-aws dynamodb create-table --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack \
-    --table-name MarketSubmitHistoryTable \
-    --attribute-definitions \
-    	AttributeName=marketSubmitId,AttributeType=S \
-    	AttributeName=message,AttributeType=S \
-    --key-schema \
-    	AttributeName=marketSubmitId,KeyType=HASH \
-    	AttributeName=message,KeyType=RANGE \
-    --provisioned-throughput \
-    	ReadCapacityUnits=5,WriteCapacityUnits=5
-```
-#### Put an Item
-```bash
-aws dynamodb put-item --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack --table-name ShortLink --item "{\"marketSubmitId\":{\"S\":\"1\"},\"message\":{\"S\":\"sample message\"}}"
-```
-
-#### Scan all items in the table
-```bash
-aws dynamodb scan --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack --table-name ShortLink
-
-aws dynamodb list-tables --endpoint-url=http://localhost:4566 --region=us-east-1 --profile localstack
-```
-
-### AWS Console
+- Node.js (v20 or higher)
+- Yarn
+- Docker and Docker Compose
+- AWS CLI (for DynamoDB local development)
 
 ## Installation
 
@@ -117,73 +66,234 @@ aws dynamodb list-tables --endpoint-url=http://localhost:4566 --region=us-east-1
 yarn install
 ```
 
-## Database Schema Migration
+## Setup
 
-To generate new migration.sql script for new changes on database schema
+### Environment Variables
+
+#### CircleCI
+
+Add environment variables to CircleCI under `jobs.build-and-test.environment` in `.circleci/config.yml`.
+
+#### Local Development
+
+Create a `.env` file in the root directory of this project with the required environment variables.
+
+### Database Setup
+
+#### PostgreSQL with Docker
+
+Run the following commands to set up a PostgreSQL Docker container:
+
 ```bash
-npm run migration:generate src/core/database/migrations/<name_of_new_changes>
+# Give execute permission to the initialization script
+chmod +x ./docker/postgres/init/1_connect.sh
 
+# Start PostgreSQL container (port: 5432)
+docker-compose -f ./docker/docker-compose.yml up -d
+```
+
+#### Troubleshooting: "Permission denied" Error on macOS
+
+If you encounter permission errors when running Docker on macOS:
+
+```bash
+chmod: /var/lib/postgresql/data: Permission denied
+find: /var/lib/postgresql/data: Permission denied
+chown: /var/lib/postgresql/data: Permission denied
+```
+
+Run the following command to fix:
+
+```bash
+sudo chmod -R 777 ./docker/postgres/data
+```
+
+### AWS DynamoDB Setup
+
+#### Localstack Configuration
+
+In the local environment, we use Localstack to emulate AWS DynamoDB.
+
+**Check for Localstack AWS Profile**
+
+```bash
+aws configure list --profile localstack
+```
+
+Expected output:
+```
+      Name                    Value             Type    Location
+      ----                    -----             ----    --------
+   profile               localstack           manual    --profile
+access_key     ****************ummy shared-credentials-file
+secret_key     ****************ummy shared-credentials-file
+    region                us-east-1      config-file    ~/.aws/config
+```
+
+**Configure Localstack Profile** (if not already set up)
+
+Add the following to `~/.aws/credentials`:
+
+```ini
+[localstack]
+aws_access_key_id = dummy
+aws_secret_access_key = dummy
+```
+
+Add the following to `~/.aws/config`:
+
+```ini
+[profile localstack]
+region = us-east-1
+output = json
+```
+
+#### Create DynamoDB Table
+
+Create the ShortLink table in Localstack:
+
+```bash
+aws dynamodb create-table \
+    --endpoint-url=http://localhost:4566 \
+    --region=us-east-1 \
+    --profile localstack \
+    --table-name ShortLink \
+    --attribute-definitions \
+        AttributeName=shortCode,AttributeType=S \
+        AttributeName=createdAt,AttributeType=N \
+    --key-schema \
+        AttributeName=shortCode,KeyType=HASH \
+        AttributeName=createdAt,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=5,WriteCapacityUnits=5
+```
+
+#### DynamoDB Utility Commands
+
+**Insert a test item:**
+
+```bash
+aws dynamodb put-item \
+    --endpoint-url=http://localhost:4566 \
+    --region=us-east-1 \
+    --profile localstack \
+    --table-name ShortLink \
+    --item '{"shortCode":{"S":"abc123"},"createdAt":{"N":"1234567890"},"originalUrl":{"S":"https://example.com"}}'
+```
+
+**List all items in the table:**
+
+```bash
+aws dynamodb scan \
+    --endpoint-url=http://localhost:4566 \
+    --region=us-east-1 \
+    --profile localstack \
+    --table-name ShortLink
+```
+
+**List all tables:**
+
+```bash
+aws dynamodb list-tables \
+    --endpoint-url=http://localhost:4566 \
+    --region=us-east-1 \
+    --profile localstack
+```
+
+## Database Migrations
+
+### Generate New Migration
+
+Create a new migration script for database schema changes:
+
+```bash
+npm run migration:generate src/infra/frameworks/database/migrations/<migration_name>
+```
+
+**Examples:**
+
+```bash
 npm run migration:generate src/infra/frameworks/database/migrations/change_userName_to_username_on_user_table
 
 npm run migration:generate src/infra/frameworks/database/migrations/change_id_to_string_on_user_table
 ```
 
-To apply new change on database
+### Apply Migrations
+
+Run pending migrations:
+
 ```bash
 npm run migration:up
 ```
 
-To rollback to previous schema
+### Rollback Migrations
+
+Revert the last migration:
+
 ```bash
 npm run migration:down
 ```
 
-## Running the app
+## Running the Application
 
 ```bash
-# development
-$ npm run start
+# Development mode
+npm run start
 
-# watch mode
-$ npm run start:dev
+# Watch mode (auto-reload on changes)
+npm run start:dev
 
-# production mode
-$ npm run start:prod
+# Production mode
+npm run start:prod
 ```
 
-## Test
+## Testing
 
 ```bash
-# unit tests
-$ yarn test
+# Unit tests
+yarn test
 
-# e2e tests
-$ yarn test:e2e
+# E2E tests
+yarn test:e2e
 
-# test coverage
-$ yarn test:cov
+# Test coverage
+yarn test:cov
 ```
 
-## Running CircleCI Locally
+## CI/CD
+
+### Running CircleCI Locally
 
 ```bash
 circleci local execute build-and-test
 ```
-#### Debug using SSH on CircleCI
+
+### Debug with SSH on CircleCI
+
+When you enable SSH in a CircleCI build, connect using:
 
 ```bash
-ssh -i /path/to/id_rsa user@server.nixcraft.com
+ssh -i ~/.ssh/id_ed25519_kanelv -p <PORT> <IP_ADDRESS>
+```
+
+**Example:**
+
+```bash
 ssh -i ~/.ssh/id_ed25519_kanelv -p 64535 34.227.75.120
 ```
 
 ## References
-https://www.digitalocean.com/community/tutorials/how-to-build-a-type-safe-url-shortener-in-nodejs-with-nestjs#step-1-preparing-your-development-environments
-https://systemdesign.one/url-shortening-system-design/#terminology
-https://dev.to/karanpratapsingh/system-design-url-shortener-10i5
 
-## Free PostgreSQL for demo
-https://dev.to/prisma/set-up-a-free-postgresql-database-on-supabase-to-use-with-prisma-3pk6
+### System Design & Architecture
 
-## Stay in touch
+- [How to Build a Type-Safe URL Shortener in Node.js with NestJS](https://www.digitalocean.com/community/tutorials/how-to-build-a-type-safe-url-shortener-in-nodejs-with-nestjs)
+- [URL Shortening System Design](https://systemdesign.one/url-shortening-system-design/#terminology)
+- [System Design: URL Shortener](https://dev.to/karanpratapsingh/system-design-url-shortener-10i5)
 
-- Author - [Cuong Le](https://github.com/kanelv)
+### Database Hosting
+
+- [Set up a Free PostgreSQL Database on Supabase](https://dev.to/prisma/set-up-a-free-postgresql-database-on-supabase-to-use-with-prisma-3pk6)
+
+## Author
+
+**Cuong Le** - [kanelv](https://github.com/kanelv)
